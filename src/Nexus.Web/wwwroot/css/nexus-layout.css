@@ -1,0 +1,31 @@
+.nexus-shell { display: flex; flex-direction: column; min-height: 100vh; }
+
+.nexus-topbar {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    padding: 14px 28px;
+    background: linear-gradient(180deg, var(--nexus-surface-raised), var(--nexus-surface));
+    border-bottom: 1px solid var(--nexus-panel-border);
+    box-shadow: var(--nexus-shadow-raised);
+}
+
+.nexus-brand { display: flex; align-items: baseline; gap: 10px; }
+.nexus-brand-mark {
+    width: 12px; height: 12px; border-radius: 50%;
+    background: var(--nexus-accent);
+    box-shadow: 0 0 8px 2px var(--nexus-accent);
+}
+.nexus-brand-text { font-family: var(--nexus-font-mono); font-weight: 700; letter-spacing: 3px; font-size: 1.1rem; }
+.nexus-brand-sub { color: var(--nexus-muted); font-size: 0.8rem; }
+
+.nexus-nav { display: flex; gap: 20px; margin-left: 24px; }
+.nexus-nav a { color: var(--nexus-muted); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; }
+.nexus-nav a:hover { color: var(--nexus-accent); text-decoration: none; }
+
+.nexus-topbar-status { margin-left: auto; display: flex; align-items: center; gap: 8px; color: var(--nexus-muted); font-size: 0.85rem; }
+.nexus-status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--nexus-success); box-shadow: 0 0 6px var(--nexus-success); }
+
+.nexus-main { flex: 1; padding: 24px 28px 40px; display: flex; flex-direction: column; gap: 20px; max-width: 1400px; width: 100%; margin: 0 auto; }
+
+.nexus-footer { padding: 14px 28px; color: var(--nexus-muted); font-size: 0.78rem; border-top: 1px solid var(--nexus-panel-border); }
