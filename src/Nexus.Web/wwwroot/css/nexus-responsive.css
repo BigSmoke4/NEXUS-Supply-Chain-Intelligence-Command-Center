@@ -1,0 +1,10 @@
+@media (max-width: 1100px) {
+    .nexus-panel-metrics { grid-template-columns: repeat(3, 1fr); }
+    .nexus-summary-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 720px) {
+    .nexus-panel-metrics { grid-template-columns: repeat(2, 1fr); }
+    .nexus-form { grid-template-columns: 1fr; }
+    .nexus-nav { display: none; } /* mobile fallback nav should be added via a hamburger menu component */
+    .nexus-summary-grid { grid-template-columns: 1fr; }
+}

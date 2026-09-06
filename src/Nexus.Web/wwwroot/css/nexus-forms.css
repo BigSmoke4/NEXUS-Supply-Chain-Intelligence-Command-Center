@@ -1,0 +1,16 @@
+.nexus-form { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+.nexus-field { display: flex; flex-direction: column; gap: 6px; font-size: 0.85rem; color: var(--nexus-muted); }
+.nexus-field input, .nexus-field select {
+    background: var(--nexus-bg-deep);
+    border: 1px solid var(--nexus-border);
+    color: var(--nexus-text);
+    border-radius: var(--nexus-radius-sm);
+    padding: 10px 12px;
+    box-shadow: var(--nexus-shadow-recessed);
+    font-family: var(--nexus-font-sans);
+}
+.nexus-field input:focus, .nexus-field select:focus { outline: 2px solid var(--nexus-accent); outline-offset: 1px; }
+.nexus-button-run { grid-column: 1 / -1; }
+
+.nexus-whatif-sliders { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 16px; }
+.nexus-whatif-sliders input[type="range"] { width: 100%; accent-color: var(--nexus-accent); }
