@@ -1,0 +1,50 @@
+@{
+    ViewData["Title"] = "What-If Mode";
+    var nodes = ViewBag.Nodes as List<SupplyNode> ?? new List<SupplyNode>();
+}
+
+<section class="nexus-panel">
+    <div class="nexus-panel-header">
+        <h2>What-If Mode</h2>
+        <span class="nexus-panel-subtitle">Instant estimate as you move the sliders (§57) — a fast approximation, not the authoritative simulation. Run a real scenario for the executive summary.</span>
+    </div>
+
+    @Html.AntiForgeryToken()
+
+    <label class="nexus-field">
+        <span>Node</span>
+        <select id="wi-node">
+            @foreach (var n in nodes)
+            {
+                <option value="@n.Id">@n.Type: @n.Name</option>
+            }
+        </select>
+    </label>
+
+    <div class="nexus-whatif-sliders">
+        <label class="nexus-field">
+            <span>Capacity: <strong id="wi-capacity-val">100</strong>%</span>
+            <input type="range" id="wi-capacity" min="0" max="100" value="100" />
+        </label>
+        <label class="nexus-field">
+            <span>Additional inventory: <strong id="wi-inventory-val">0</strong> days</span>
+            <input type="range" id="wi-inventory" min="0" max="60" value="0" />
+        </label>
+        <label class="nexus-field">
+            <span>Demand: <strong id="wi-demand-val">100</strong>%</span>
+            <input type="range" id="wi-demand" min="50" max="200" value="100" />
+        </label>
+    </div>
+
+    <div class="nexus-summary-grid" style="margin-top:20px;">
+        <div><span class="nexus-summary-label">Estimated Revenue at Risk</span><span class="nexus-summary-value nexus-glow-danger" id="wi-revenue">$0</span></div>
+        <div><span class="nexus-summary-label">Products Affected</span><span class="nexus-summary-value" id="wi-products">0</span></div>
+        <div><span class="nexus-summary-label">Estimated Days to Stockout</span><span class="nexus-summary-value" id="wi-stockout">—</span></div>
+        <div><span class="nexus-summary-label">Estimated Service Level</span><span class="nexus-summary-value" id="wi-service">100%</span></div>
+        <div><span class="nexus-summary-label">Estimated Mitigation Cost</span><span class="nexus-summary-value" id="wi-cost">$0</span></div>
+    </div>
+</section>
+
+@section Scripts {
+    <script src="~/js/nexus.whatif.js"></script>
+}
