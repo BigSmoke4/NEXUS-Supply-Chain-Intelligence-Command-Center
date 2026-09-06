@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="nexus-dark">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"] · NEXUS Command Center</title>
+
+    <link rel="stylesheet" href="~/css/nexus.css" />
+    <link rel="stylesheet" href="~/css/nexus-layout.css" />
+    <link rel="stylesheet" href="~/css/nexus-components.css" />
+    <link rel="stylesheet" href="~/css/nexus-command-center.css" />
+    <link rel="stylesheet" href="~/css/nexus-graph.css" />
+    <link rel="stylesheet" href="~/css/nexus-forms.css" />
+    <link rel="stylesheet" href="~/css/nexus-tables.css" />
+    <link rel="stylesheet" href="~/css/nexus-responsive.css" />
+</head>
+<body>
+    <a class="nexus-skip-link" href="#main-content">Skip to main content</a>
+    <div class="nexus-shell">
+        <header class="nexus-topbar">
+            <div class="nexus-brand">
+                <span class="nexus-brand-mark" aria-hidden="true"></span>
+                <span class="nexus-brand-text">NEXUS</span>
+                <span class="nexus-brand-sub">Supply-Chain Intelligence Command Center</span>
+            </div>
+            <nav class="nexus-nav" aria-label="Primary">
+                <a asp-controller="CommandCenter" asp-action="Index" aria-label="Command Center">Command</a>
+                <a asp-controller="Suppliers" asp-action="Index">Network</a>
+                <a asp-controller="Scenarios" asp-action="Builder">Scenarios</a>
+                <a asp-controller="ScenarioComparison" asp-action="Index">Compare</a>
+                <a asp-controller="Risk" asp-action="Heatmap">Risk</a>
+                <a asp-controller="WhatIf" asp-action="Index">What-If</a>
+                @if (User.IsInRole(Nexus.Web.Domain.Entities.NexusRoles.SystemAdministrator))
+                {
+                    <a asp-controller="Admin" asp-action="Users">Admin</a>
+                }
+            </nav>
+            <div class="nexus-topbar-status">
+                <span class="nexus-status-dot" aria-hidden="true"></span>
+                <span>Live</span>
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <span class="nexus-muted" style="margin-left:14px;">@User.Identity.Name</span>
+                    <form asp-controller="Account" asp-action="Logout" method="post" style="display:inline;margin-left:8px;">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="nexus-button">Sign out</button>
+                    </form>
+                }
+                else
+                {
+                    <a class="nexus-button" style="margin-left:14px;" asp-controller="Account" asp-action="Login">Sign in</a>
+                }
+            </div>
+        </header>
+
+        <main id="main-content" class="nexus-main" tabindex="-1">
+            @RenderBody()
+        </main>
+
+        <footer class="nexus-footer">
+            <span>NEXUS — reference architecture. Simulation results are computed deterministically; the AI layer explains, it does not calculate.</span>
+        </footer>
+    </div>
+
+    <!-- Loaded from CDN so no local libman/npm restore is required to try the UI.
+         For production, vendor this via libman and serve it locally instead. -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.7/signalr.min.js"></script>
+    <script src="~/js/nexus.core.js"></script>
+    <script src="~/js/nexus.api.js"></script>
+    <script src="~/js/nexus.graph.js"></script>
+    <script src="~/js/nexus.signalr.js"></script>
+    <script src="~/js/nexus.command-center.js"></script>
+    <script src="~/js/nexus.scenario.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
