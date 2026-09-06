@@ -1,0 +1,99 @@
+@model Scenario
+@{
+    ViewData["Title"] = Model.Name;
+    var result = Model.LastResult;
+}
+
+<section class="nexus-panel" id="scenario-results-root" data-scenario-id="@Model.Id">
+    <div class="nexus-panel-header">
+        <h2>@Model.Name</h2>
+        <span class="nexus-panel-subtitle">Executive summary</span>
+    </div>
+
+    @if (result is null)
+    {
+        <div class="nexus-alert" role="status">
+            <strong>Simulation queued and running in the background</strong> (§46 - large scenarios don't block the
+            request). This page updates automatically over SignalR when the result lands.
+        </div>
+    }
+    else
+    {
+        <div class="nexus-summary-grid">
+            <div><span class="nexus-summary-label">Revenue at Risk</span><span class="nexus-summary-value nexus-glow-danger">$@result.RevenueAtRisk.ToString("N0")</span></div>
+            <div><span class="nexus-summary-label">Products Affected</span><span class="nexus-summary-value">@result.ProductsAffected</span></div>
+            <div><span class="nexus-summary-label">Customers Affected</span><span class="nexus-summary-value">@result.CustomersAffected</span></div>
+            <div><span class="nexus-summary-label">Estimated Recovery</span><span class="nexus-summary-value">@result.RecoveryDays days</span></div>
+            <div><span class="nexus-summary-label">Service Level</span><span class="nexus-summary-value">@result.ServiceLevelPercent%</span></div>
+            <div><span class="nexus-summary-label">Overall Risk Score</span><span class="nexus-summary-value nexus-glow-warning">@result.OverallRiskScore</span></div>
+        </div>
+
+        <a class="nexus-button" asp-controller="Reports" asp-action="ExecutiveSummary" asp-route-scenarioId="@Model.Id" target="_blank">
+            ⬇ Download Executive Summary PDF
+        </a>
+
+        <h3>Cascading Failure Propagation</h3>
+        <p class="nexus-muted">Replays the actual breadth-first propagation path the simulation engine traced through the graph (§56) — not a scripted animation.</p>
+        <div id="cascade-graph-canvas"
+             class="nexus-graph-canvas"
+             data-nodes='@Html.Raw(System.Text.Json.JsonSerializer.Serialize((ViewBag.Nodes as List<SupplyNode> ?? new()).Select(n => new { id = n.Id, name = n.Name, type = n.Type.ToString() })))'
+             data-edges='@Html.Raw(System.Text.Json.JsonSerializer.Serialize((ViewBag.Edges as List<SupplyEdge> ?? new()).Select(e => new { source = e.SourceNodeId, target = e.TargetNodeId, type = e.Type.ToString() })))'
+             data-cascade='@Html.Raw(System.Text.Json.JsonSerializer.Serialize(result.CascadeSteps.Select(c => new { nodeId = c.NodeId, stageOrder = c.StageOrder })))'
+             role="img"
+             aria-label="Cascading failure propagation graph">
+        </div>
+        <button id="animate-cascade-btn" class="nexus-button" style="margin-top:10px;">▶ Replay propagation</button>
+
+        <h3 style="margin-top:24px;">Timeline</h3>
+        <ol class="nexus-timeline">
+            @foreach (var t in result.Timeline)
+            {
+                <li class="nexus-timeline-item nexus-severity-@t.Severity">
+                    <span class="nexus-timeline-day">Day @t.DayOffset</span>
+                    <span class="nexus-timeline-label">@t.Label</span>
+                </li>
+            }
+        </ol>
+
+        <h3>Recommended Mitigation Strategies</h3>
+        <div class="nexus-strategy-grid">
+            @foreach (var s in result.Strategies)
+            {
+                <div class="nexus-strategy-card">
+                    <div class="nexus-strategy-title">@s.Type</div>
+                    <p>@s.Description</p>
+                    <div class="nexus-strategy-metrics">
+                        <span>Loss after: $@s.EstimatedRevenueLossAfter.ToString("N0")</span>
+                        <span>Cost: $@s.AdditionalCost.ToString("N0")</span>
+                        <span>Recovery: @s.RecoveryDaysAfter days</span>
+                        <span>Confidence: @s.ConfidencePercent%</span>
+                    </div>
+                    <form asp-controller="Scenarios" asp-action="ApproveStrategy" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="strategyId" value="@s.Id" />
+                        <input type="hidden" name="scenarioId" value="@Model.Id" />
+                        <button type="submit" class="nexus-button nexus-button-approve" @(s.ApprovalStatus == ApprovalStatus.Approved ? "disabled" : "")>
+                            @(s.ApprovalStatus == ApprovalStatus.Approved ? "APPROVED" : "APPROVE")
+                        </button>
+                    </form>
+                </div>
+            }
+        </div>
+
+        <h3>AI Explanation</h3>
+        @Html.AntiForgeryToken()
+        <div class="nexus-field" style="margin-bottom:10px;">
+            <span>Ask the AI investigation team a question about this scenario</span>
+            <textarea id="ai-question-input" rows="2" placeholder="e.g. What is the impact and how should we respond? Can we switch suppliers per contract terms?"></textarea>
+        </div>
+        <button id="explain-btn" class="nexus-button" data-scenario-id="@Model.Id"
+                data-explain-url="@Url.Action("Explain", "Scenarios", new { id = Model.Id })">
+            Ask the Explanation Agent
+        </button>
+        <div id="ai-explanation-container"></div>
+    }
+</section>
+
+@section Scripts {
+    <script src="~/js/nexus.ai.js"></script>
+}

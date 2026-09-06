@@ -1,0 +1,24 @@
+@{ ViewData["Title"] = "Register"; }
+
+<section class="nexus-panel nexus-panel-form" style="max-width:420px;margin:40px auto;">
+    <div class="nexus-panel-header"><h2>Create your NEXUS account</h2></div>
+
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="nexus-alert nexus-alert-critical" role="alert">
+            @foreach (var e in ViewData.ModelState.SelectMany(kvp => kvp.Value!.Errors))
+            {
+                <div>@e.ErrorMessage</div>
+            }
+        </div>
+    }
+
+    <form asp-controller="Account" asp-action="Register" method="post" class="nexus-form" style="grid-template-columns:1fr;">
+        @Html.AntiForgeryToken()
+        <label class="nexus-field"><span>Display name</span><input type="text" name="displayName" required /></label>
+        <label class="nexus-field"><span>Email</span><input type="email" name="email" required /></label>
+        <label class="nexus-field"><span>Password</span><input type="password" name="password" required minlength="10" /></label>
+        <button type="submit" class="nexus-button nexus-button-primary nexus-button-run">CREATE ACCOUNT</button>
+    </form>
+    <p class="nexus-muted" style="margin-top:14px;">The first account created becomes a System Administrator for the demo organization.</p>
+</section>

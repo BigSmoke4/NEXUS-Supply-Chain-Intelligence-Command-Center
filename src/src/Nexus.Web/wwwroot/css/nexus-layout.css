@@ -1,0 +1,58 @@
+.nexus-shell { display: flex; flex-direction: column; min-height: 100vh; }
+
+.nexus-topbar {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    padding: 14px 28px;
+    background: linear-gradient(180deg, var(--nexus-surface-raised), var(--nexus-surface));
+    border-bottom: 1px solid var(--nexus-panel-border);
+    box-shadow: var(--nexus-shadow-raised);
+}
+
+.nexus-brand { display: flex; align-items: baseline; gap: 10px; }
+.nexus-brand-mark {
+    width: 12px; height: 12px; border-radius: 50%;
+    background: var(--nexus-accent);
+    box-shadow: 0 0 8px 2px var(--nexus-accent);
+}
+.nexus-brand-text { font-family: var(--nexus-font-mono); font-weight: 700; letter-spacing: 3px; font-size: 1.1rem; }
+.nexus-brand-sub { color: var(--nexus-muted); font-size: 0.8rem; }
+
+.nexus-nav { display: flex; gap: 20px; margin-left: 24px; }
+.nexus-nav a { color: var(--nexus-muted); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; }
+.nexus-nav a:hover { color: var(--nexus-accent); text-decoration: none; }
+
+.nexus-topbar-status { margin-left: auto; display: flex; align-items: center; gap: 8px; color: var(--nexus-muted); font-size: 0.85rem; }
+.nexus-status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--nexus-success); box-shadow: 0 0 6px var(--nexus-success); }
+
+.nexus-main { flex: 1; padding: 24px 28px 40px; display: flex; flex-direction: column; gap: 20px; max-width: 1400px; width: 100%; margin: 0 auto; }
+
+.nexus-footer { padding: 14px 28px; color: var(--nexus-muted); font-size: 0.78rem; border-top: 1px solid var(--nexus-panel-border); }
+
+
+/* Accessible neural-network navigation (§30): the navigation remains a normal
+   semantic link list, while these connected nodes provide the requested neural
+   visual treatment without replacing keyboard navigation or screen-reader
+   semantics. */
+.nexus-nav { position: relative; align-items: center; }
+.nexus-nav::before {
+    content: ""; position: absolute; left: 8px; right: 8px; top: 50%;
+    border-top: 1px solid var(--nexus-panel-border); opacity: .75; z-index: 0;
+}
+.nexus-nav a { position: relative; z-index: 1; padding: 6px 4px 6px 18px; background: var(--nexus-surface); }
+.nexus-nav a::before {
+    content: ""; position: absolute; left: 3px; top: 50%; transform: translateY(-50%);
+    width: 8px; height: 8px; border-radius: 50%; background: var(--nexus-surface-raised);
+    border: 1px solid var(--nexus-accent); box-shadow: 0 0 7px var(--nexus-accent);
+}
+.nexus-nav a:focus-visible { outline: 2px solid var(--nexus-accent); outline-offset: 3px; border-radius: 3px; }
+.nexus-skip-link {
+    position: fixed; left: 12px; top: -60px; z-index: 9999; padding: 10px 14px;
+    background: var(--nexus-surface-raised); color: var(--nexus-text); border: 1px solid var(--nexus-accent);
+}
+.nexus-skip-link:focus { top: 12px; }
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+}

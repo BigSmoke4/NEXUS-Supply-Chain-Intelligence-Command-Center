@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <!--
+    These tests spin up a real PostgreSQL container via Testcontainers and
+    exercise the full ASP.NET Core pipeline via WebApplicationFactory - real
+    HTTP requests through real middleware (auth, RBAC policies, EF Core
+    migrations) against a real database, not mocks. Requires Docker running
+    locally or in CI (the CI workflow does not currently run this project -
+    see .github/workflows/ci.yml, which only runs the fast unit test suite
+    in tests/Nexus.Tests; add a Docker-enabled job to run this one too).
+  -->
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
+    <PackageReference Include="xunit" Version="2.9.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="9.0.0" />
+    <PackageReference Include="Testcontainers.PostgreSql" Version="4.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Nexus.Web\Nexus.Web.csproj" />
+  </ItemGroup>
+
+</Project>
