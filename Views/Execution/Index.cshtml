@@ -1,0 +1,86 @@
+@model NEXUS.Modules.Execution.Presentation.ExecutionViewModel
+@using System.Text.Json
+@using NEXUS.Modules.DecisionEngine.Application
+@{
+    var exe = Model.ActiveExecution;
+    var replay = new List<ReplayEventDto>();
+    try
+    {
+        replay = JsonSerializer.Deserialize<List<ReplayEventDto>>(exe.ReplayEventsJson) ?? new();
+    }
+    catch
+    {
+        replay = new();
+    }
+}
+
+<section class="command-panel" style="margin-bottom:18px;">
+    <div class="panel-header-bar">
+        <h1 class="panel-title"><span class="status-led"></span> EXECUTION RECORD &amp; DECISION TIME MACHINE — @exe.ExecutionCode</h1>
+        <button type="button" id="btn-start-decision-replay" class="physical-button physical-button-primary">REPLAY DECISION TIMELINE</button>
+    </div>
+
+    <div class="grid-3" style="margin-bottom:14px;">
+        <div class="metric-display">
+            <span class="metric-display-label">DECISION EXECUTED</span>
+            <span class="metric-display-value text-cyan">@exe.DecisionCode (@exe.SelectedStrategyCode)</span>
+            <span class="text-muted">Approved by @exe.ApprovedByUser</span>
+        </div>
+        <div class="metric-display">
+            <span class="metric-display-label">EXECUTION STATUS</span>
+            <span class="metric-display-value text-emerald">@exe.Status (@exe.ProgressPct%)</span>
+            <span class="text-muted">@exe.ActionSummary</span>
+        </div>
+        <div class="metric-display">
+            <span class="metric-display-label">POST-EXECUTION OUTCOME</span>
+            <span class="metric-display-value text-amber">VERIFIED</span>
+            <a href="/Feedback" class="text-cyan mono-num">Inspect Decision Quality Feedback -></a>
+        </div>
+    </div>
+
+    <div class="replay-timeline">
+        @foreach (var item in replay)
+        {
+            <div class="replay-item">
+                <span class="mono-num text-amber" style="font-weight:700;">@item.Time</span>
+                <strong>@item.Event</strong>
+                <span class="text-muted">@item.Detail</span>
+            </div>
+        }
+    </div>
+</section>
+
+<section class="metal-panel">
+    <div class="panel-header-bar">
+        <h2 class="panel-title">DISPATCHED ASSET WORK ORDERS &amp; EXECUTION RESULTS</h2>
+    </div>
+    <table class="industrial-table">
+        <thead>
+            <tr>
+                <th>Asset Code</th>
+                <th>Asset Name</th>
+                <th>Operation Dispatched</th>
+                <th>Capacity Shifted</th>
+                <th>Cost Incurred</th>
+                <th>Post-Exec Utilization</th>
+                <th>Service Level</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var r in exe.Results)
+            {
+                <tr>
+                    <td class="mono-num">@r.TargetAssetCode</td>
+                    <td>@r.TargetAssetName</td>
+                    <td>@r.OperationPerformed</td>
+                    <td class="mono-num text-cyan">@r.CapacityShiftedUnitsPerDay.ToString("N0") units/day</td>
+                    <td class="mono-num text-amber">$@r.CostIncurredUsd.ToString("N0")</td>
+                    <td class="mono-num">@r.PostExecutionUtilizationPct.ToString("F1")%</td>
+                    <td class="mono-num text-emerald">@r.ServiceLevelAchievedPct.ToString("F1")%</td>
+                    <td><span class="badge-chip optimal">COMPLETED</span></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</section>

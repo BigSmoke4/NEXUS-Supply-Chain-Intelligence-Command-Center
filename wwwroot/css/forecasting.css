@@ -1,0 +1,12 @@
+.forecast-chart-box {
+  height: 220px;
+  width: 100%;
+  position: relative;
+}
+
+.ml-metrics-strip {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 10px;
+}

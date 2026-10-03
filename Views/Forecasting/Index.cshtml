@@ -1,0 +1,111 @@
+@model NEXUS.Modules.Forecasting.Presentation.ForecastingViewModel
+
+<section class="command-panel" style="margin-bottom:18px;">
+    <div class="panel-header-bar">
+        <h1 class="panel-title"><span class="status-led cyan"></span> PREDICTION ENGINE — SCIKIT-LEARN &amp; XGBOOST ML PIPELINE</h1>
+        <span class="badge-chip optimal">TRAINING -> VALIDATION -> EVALUATION -> SERIALIZATION -> FASTAPI</span>
+    </div>
+
+    <form id="form-run-prediction" method="post" action="/Forecasting/Predict" class="inset-panel" style="margin-bottom:16px;">
+        @Html.AntiForgeryToken()
+        <div class="grid-6">
+            <div class="control-group">
+                <label>Target Domain</label>
+                <select name="targetDomain">
+                    @foreach (var d in PredictionTargets.All)
+                    {
+                        <option value="@d">@d</option>
+                    }
+                </select>
+            </div>
+            <div class="control-group">
+                <label>Asset Code</label>
+                <input type="text" name="targetAssetCode" value="SUP-001" />
+            </div>
+            <div class="control-group">
+                <label>Horizon (Days)</label>
+                <input type="number" name="horizonDays" value="14" min="1" max="90" />
+            </div>
+            <div class="control-group">
+                <label>Utilization (%)</label>
+                <input type="number" name="utilizationPct" value="87" min="10" max="100" />
+            </div>
+            <div class="control-group">
+                <label>Supplier Rel. (%)</label>
+                <input type="number" name="supplierReliabilityPct" value="91" min="50" max="100" />
+            </div>
+            <div class="control-group" style="justify-content:flex-end;">
+                <button type="submit" id="btn-submit-prediction" class="physical-button physical-button-primary">PREDICT</button>
+            </div>
+        </div>
+    </form>
+
+    <table class="industrial-table">
+        <thead>
+            <tr>
+                <th>Code</th>
+                <th>Predictive Model Domain</th>
+                <th>Target Asset</th>
+                <th>Predicted Value</th>
+                <th>95% CI Bounds</th>
+                <th>Val R²</th>
+                <th>MAE</th>
+                <th>RMSE</th>
+                <th>ROC-AUC</th>
+                <th>F1 Score</th>
+                <th>Samples</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var p in Model.Predictions)
+            {
+                <tr>
+                    <td class="mono-num">@p.PredictionCode</td>
+                    <td><strong>@p.TargetDomain</strong></td>
+                    <td class="mono-num">@p.TargetAssetCode</td>
+                    <td class="mono-num text-cyan">@p.PredictedValue.ToString("F2") @p.Unit</td>
+                    <td class="mono-num text-muted">[@p.ConfidenceIntervalLow.ToString("F1"), @p.ConfidenceIntervalHigh.ToString("F1")]</td>
+                    <td class="mono-num text-emerald">@p.ValidationR2.ToString("F3")</td>
+                    <td class="mono-num">@p.ValidationMae.ToString("F3")</td>
+                    <td class="mono-num">@p.ValidationRmse.ToString("F3")</td>
+                    <td class="mono-num text-amber">@p.ValidationRocAuc.ToString("F3")</td>
+                    <td class="mono-num">@p.ValidationF1.ToString("F3")</td>
+                    <td class="mono-num">@p.TrainingSamplesCount.ToString("N0")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</section>
+
+<section class="metal-panel">
+    <div class="panel-header-bar">
+        <h2 class="panel-title">14-DAY ENTERPRISE DEMAND FORECAST TRAJECTORY</h2>
+    </div>
+    <table class="industrial-table">
+        <thead>
+            <tr>
+                <th>Horizon Day</th>
+                <th>Forecast Date</th>
+                <th>Baseline Demand</th>
+                <th>ML Forecasted Demand</th>
+                <th>Lower 95% Bound</th>
+                <th>Upper 95% Bound</th>
+                <th>Model Artifact</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var f in Model.DemandForecasts)
+            {
+                <tr>
+                    <td class="mono-num">Day +@f.DayOffset</td>
+                    <td class="mono-num">@f.ForecastDateUtc.ToString("yyyy-MM-dd")</td>
+                    <td class="mono-num">@f.BaselineValue.ToString("N0") units</td>
+                    <td class="mono-num text-cyan">@f.ForecastedValue.ToString("N0") units</td>
+                    <td class="mono-num text-muted">@f.LowerBound.ToString("N0")</td>
+                    <td class="mono-num text-muted">@f.UpperBound.ToString("N0")</td>
+                    <td class="mono-num">@f.ModelSource</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</section>

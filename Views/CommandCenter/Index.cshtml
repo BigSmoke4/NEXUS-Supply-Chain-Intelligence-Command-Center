@@ -1,0 +1,198 @@
+@model NEXUS.Modules.DigitalTwin.Presentation.CommandCenterViewModel
+@using System.Text.Json
+@{
+    var jsonOpts = new JsonSerializerOptions(JsonSerializerDefaults.Web);
+    var nodesJson = JsonSerializer.Serialize(Model.Graph.Nodes, jsonOpts);
+    var edgesJson = JsonSerializer.Serialize(Model.Graph.Edges, jsonOpts);
+    var critJson = JsonSerializer.Serialize(Model.Graph.CriticalPathAssetCodes, jsonOpts);
+    var bottleJson = JsonSerializer.Serialize(Model.Graph.BottleneckAssetCodes, jsonOpts);
+}
+
+<section class="command-panel command-center-banner">
+    <div class="panel-header-bar">
+        <h1 class="panel-title">
+            <span class="status-led"></span>
+            NEXUS COMMAND CENTER — AUTONOMOUS ENTERPRISE DECISION ENGINE
+        </h1>
+        <div style="display:flex;gap:8px;align-items:center;">
+            <span class="badge-chip optimal">ENTERPRISE RESILIENCE: @Model.State.ResilienceScore.ToString("F0") / 100</span>
+            <button type="button" id="btn-refresh-enterprise-state" class="physical-button">RECALCULATE STATE</button>
+        </div>
+    </div>
+
+    <div class="command-center-kpi-grid">
+        <div class="metric-display">
+            <span class="metric-display-label">RESILIENCE</span>
+            <span class="metric-display-value text-emerald">@Model.State.ResilienceScore.ToString("F0") / 100</span>
+            <div class="progress-meter"><div class="progress-meter-fill" style="width:@Model.State.ResilienceScore.ToString("F0")%;"></div></div>
+        </div>
+        <div class="metric-display">
+            <span class="metric-display-label">REVENUE AT RISK</span>
+            <span class="metric-display-value text-amber">$@((Model.State.RevenueAtRiskUsd / 1_000_000m).ToString("F1"))M</span>
+            <span class="text-muted mono-num">@Model.State.ActiveRisksCount Active Risk Vectors</span>
+        </div>
+        <div class="metric-display">
+            <span class="metric-display-label">SUPPLIER HEALTH</span>
+            <span class="metric-display-value text-cyan">@Model.State.SupplierHealthPct.ToString("F0")%</span>
+            <div class="progress-meter"><div class="progress-meter-fill" style="width:@Model.State.SupplierHealthPct.ToString("F0")%;"></div></div>
+        </div>
+        <div class="metric-display">
+            <span class="metric-display-label">FACTORY UTILIZATION</span>
+            <span class="metric-display-value text-amber">@Model.State.FactoryUtilizationPct.ToString("F0")%</span>
+            <div class="progress-meter"><div class="progress-meter-fill" style="width:@Model.State.FactoryUtilizationPct.ToString("F0")%;"></div></div>
+        </div>
+        <div class="metric-display">
+            <span class="metric-display-label">WAREHOUSE UTILIZATION</span>
+            <span class="metric-display-value">@Model.State.WarehouseUtilizationPct.ToString("F0")%</span>
+            <span class="text-muted mono-num">INVENTORY COVERAGE: @Model.State.InventoryCoverageDays.ToString("F0") DAYS</span>
+        </div>
+        <div class="metric-display">
+            <span class="metric-display-label">TRANSPORT CAPACITY</span>
+            <span class="metric-display-value">@Model.State.TransportCapacityPct.ToString("F0")%</span>
+            <span class="text-muted mono-num">ACTIVE SCENARIOS: @Model.State.ActiveScenariosCount</span>
+        </div>
+    </div>
+
+    <div class="inset-panel state-telemetry-strip">
+        <span>SUPPLIERS: <strong>@Model.State.TotalSuppliers</strong></span>
+        <span>FACTORIES: <strong>@Model.State.TotalFactories</strong></span>
+        <span>WAREHOUSES: <strong>@Model.State.TotalWarehouses</strong></span>
+        <span>ROUTES: <strong>@Model.State.TotalRoutes</strong></span>
+        <span>PRODUCTS: <strong>@Model.State.TotalProducts</strong></span>
+        <span>DEPENDENCIES: <strong>@Model.State.TotalDependencies</strong></span>
+        <span>SERVICE LEVEL: <strong class="text-emerald">@Model.State.ServiceLevelPct.ToString("F1")%</strong></span>
+    </div>
+</section>
+
+<div class="grid-2" style="margin-bottom:18px;">
+    <section class="metal-panel">
+        <div class="panel-header-bar">
+            <h2 class="panel-title"><span class="status-led cyan"></span> LIVE ENTERPRISE DEPENDENCY TOPOLOGY</h2>
+            <div style="display:flex;gap:8px;">
+                <a class="physical-button" href="/DigitalTwin">OPEN DIGITAL TWIN</a>
+                <a class="physical-button" href="/DependencyGraph">IMPACT GRAPH</a>
+            </div>
+        </div>
+        <div class="js-enterprise-graph-container graph-viewport-frame"
+             data-nodes="@nodesJson"
+             data-edges="@edgesJson"
+             data-critical-path="@critJson"
+             data-bottlenecks="@bottleJson">
+            <svg class="graph-svg-surface" aria-label="Enterprise Digital Twin Topology"></svg>
+            <div class="graph-legend-bar">
+                <span>CRITICAL PATH: @string.Join(" -> ", Model.Graph.CriticalPathAssetCodes.Take(5))</span>
+                <span>BOTTLENECKS: @string.Join(", ", Model.Graph.BottleneckAssetCodes.Take(5))</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="metal-panel">
+        <div class="panel-header-bar">
+            <h2 class="panel-title"><span class="status-led amber"></span> EXPLAINABLE AUTONOMOUS RECOMMENDATIONS</h2>
+            <a class="physical-button physical-button-primary" href="/DecisionEngine">DECISION ENGINE</a>
+        </div>
+
+        @foreach (var dec in Model.RecentDecisions.Take(2))
+        {
+            <div class="control-panel" style="margin-bottom:12px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                    <strong class="mono-num text-cyan">@dec.DecisionCode — @dec.RecommendedStrategyCode</strong>
+                    <span class="badge-chip @(dec.Status == "APPROVED" || dec.Status == "EXECUTED" ? "optimal" : "medium")">@dec.Status</span>
+                </div>
+                <div class="inset-panel" style="margin-bottom:8px;">
+                    <div class="metric-display-label">WHAT</div>
+                    <div style="font-weight:700;color:#fff;">@dec.WhatRecommendation</div>
+                    <div class="metric-display-label" style="margin-top:8px;">WHY</div>
+                    <div class="text-muted" style="font-size:12px;">@dec.WhyExplanation</div>
+                    <div class="metric-display-label" style="margin-top:8px;">EXPECTED RESULT</div>
+                    <div class="mono-num text-emerald" style="font-size:12px;">@dec.ExpectedResultSummary</div>
+                </div>
+                <div style="display:flex;gap:8px;">
+                    <a class="physical-button physical-button-success" href="/DecisionEngine/Details/@dec.Id">INSPECT / APPROVE</a>
+                    <a class="physical-button" href="/Execution">DECISION REPLAY</a>
+                </div>
+            </div>
+        }
+    </section>
+</div>
+
+<div class="grid-2">
+    <section class="metal-panel">
+        <div class="panel-header-bar">
+            <h2 class="panel-title"><span class="status-led red"></span> ACTIVE ENTERPRISE RISKS &amp; BOTTLENECKS (@Model.ActiveRisks.Count)</h2>
+            <a class="physical-button" href="/Analytics">BLACK SWAN LAB</a>
+        </div>
+        <table class="industrial-table">
+            <thead>
+                <tr>
+                    <th>Code</th>
+                    <th>Asset</th>
+                    <th>Risk Event</th>
+                    <th>Severity</th>
+                    <th>Prob</th>
+                    <th>Exposure</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var r in Model.ActiveRisks.Take(7))
+                {
+                    <tr>
+                        <td class="mono-num">@r.RiskCode</td>
+                        <td class="mono-num"><a href="/DigitalTwin?select=@r.AffectedAssetCode">@r.AffectedAssetCode</a></td>
+                        <td>@r.Title</td>
+                        <td><span class="badge-chip @r.Severity.ToLowerInvariant()">@r.Severity</span></td>
+                        <td class="mono-num">@r.ProbabilityPct.ToString("F0")%</td>
+                        <td class="mono-num text-amber">$@((r.RevenueExposureUsd / 1_000_000m).ToString("F2"))M</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </section>
+
+    <section class="metal-panel">
+        <div class="panel-header-bar">
+            <h2 class="panel-title"><span class="status-led cyan"></span> RECENT MONTE CARLO SIMULATIONS &amp; ML PREDICTIONS</h2>
+            <div style="display:flex;gap:8px;">
+                <a class="physical-button" href="/Simulation">SIMULATIONS</a>
+                <a class="physical-button" href="/Forecasting">ML FORECASTS</a>
+            </div>
+        </div>
+        @foreach (var sim in Model.RecentSimulations.Take(2))
+        {
+            <div class="inset-panel" style="margin-bottom:10px;">
+                <div style="display:flex;justify-content:space-between;">
+                    <strong class="mono-num text-cyan">@sim.RunCode (@sim.MonteCarloIterations.ToString("N0") Futures)</strong>
+                    <span class="mono-num text-amber">Mean Loss: $@((sim.MonteCarloMeanRevenueLossUsd / 1_000_000m).ToString("F2"))M</span>
+                </div>
+                <div class="mono-num" style="font-size:11.5px;margin-top:6px;">
+                    Stockout Prob: <strong>@sim.ProbabilityOfStockoutPct.ToString("F1")%</strong> |
+                    Loss &gt; $1M: <strong>@sim.ProbabilityRevenueLossOver1MPct.ToString("F1")%</strong> |
+                    SLA &lt; 95%: <strong>@sim.ProbabilitySlaBelow95Pct.ToString("F1")%</strong>
+                </div>
+            </div>
+        }
+        <table class="industrial-table">
+            <thead>
+                <tr>
+                    <th>Target Domain</th>
+                    <th>Asset</th>
+                    <th>Prediction</th>
+                    <th>Val R²</th>
+                    <th>ROC-AUC</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var p in Model.Predictions.Take(5))
+                {
+                    <tr>
+                        <td>@p.TargetDomain</td>
+                        <td class="mono-num">@p.TargetAssetCode</td>
+                        <td class="mono-num text-cyan">@p.PredictedValue.ToString("F1") @p.Unit</td>
+                        <td class="mono-num text-emerald">@p.ValidationR2.ToString("F3")</td>
+                        <td class="mono-num">@p.ValidationRocAuc.ToString("F3")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </section>
+</div>

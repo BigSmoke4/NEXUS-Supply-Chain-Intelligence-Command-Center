@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NEXUS — Autonomous Enterprise Decision Engine</title>
+    <link rel="stylesheet" href="~/css/site.css" />
+    <link rel="stylesheet" href="~/css/skeuomorphic.css" />
+    <link rel="stylesheet" href="~/css/components.css" />
+    <link rel="stylesheet" href="~/css/dashboard.css" />
+    <link rel="stylesheet" href="~/css/digital-twin.css" />
+    <link rel="stylesheet" href="~/css/graph.css" />
+    <link rel="stylesheet" href="~/css/scenario.css" />
+    <link rel="stylesheet" href="~/css/simulation.css" />
+    <link rel="stylesheet" href="~/css/optimization.css" />
+    <link rel="stylesheet" href="~/css/decision.css" />
+    <link rel="stylesheet" href="~/css/analytics.css" />
+    <link rel="stylesheet" href="~/css/forecasting.css" />
+    <link rel="stylesheet" href="~/css/responsive.css" />
+</head>
+<body>
+    <div class="nexus-shell">
+        <aside class="nexus-sidebar" aria-label="Primary Control Room Navigation">
+            <div class="nexus-brand-plate">
+                <div class="nexus-brand-title">
+                    <span class="status-led"></span>
+                    <span>NEXUS</span>
+                    <span class="screw"></span>
+                </div>
+                <div class="nexus-brand-subtitle">Autonomous Decision Engine</div>
+            </div>
+
+            <div class="nexus-nav-section-label">Operations Control</div>
+            <ul class="nexus-nav-list">
+                <li><a class="nexus-nav-link" href="/CommandCenter"><span>01. Command Center</span><span class="rivet"></span></a></li>
+                <li><a class="nexus-nav-link" href="/DigitalTwin"><span>02. Enterprise Digital Twin</span><span class="rivet"></span></a></li>
+                <li><a class="nexus-nav-link" href="/DependencyGraph"><span>03. Dependency Graph</span><span class="rivet"></span></a></li>
+            </ul>
+
+            <div class="nexus-nav-section-label">Simulation &amp; Optimization</div>
+            <ul class="nexus-nav-list">
+                <li><a class="nexus-nav-link" href="/ScenarioLab"><span>04. What-If Scenario Lab</span><span class="rivet"></span></a></li>
+                <li><a class="nexus-nav-link" href="/Simulation"><span>05. Monte Carlo Simulation</span><span class="rivet"></span></a></li>
+                <li><a class="nexus-nav-link" href="/Optimization"><span>06. OR-Tools Optimization</span><span class="rivet"></span></a></li>
+            </ul>
+
+            <div class="nexus-nav-section-label">Autonomous Intelligence</div>
+            <ul class="nexus-nav-list">
+                <li><a class="nexus-nav-link" href="/DecisionEngine"><span>07. Decision Engine &amp; AI</span><span class="rivet"></span></a></li>
+                <li><a class="nexus-nav-link" href="/Forecasting"><span>08. ML Prediction Engine</span><span class="rivet"></span></a></li>
+                <li><a class="nexus-nav-link" href="/Analytics"><span>09. Black Swan &amp; Resilience</span><span class="rivet"></span></a></li>
+            </ul>
+
+            <div class="nexus-nav-section-label">Governance &amp; Feedback</div>
+            <ul class="nexus-nav-list">
+                <li><a class="nexus-nav-link" href="/Execution"><span>10. Execution &amp; Replay</span><span class="rivet"></span></a></li>
+                <li><a class="nexus-nav-link" href="/Feedback"><span>11. Decision Quality Feedback</span><span class="rivet"></span></a></li>
+                <li><a class="nexus-nav-link" href="/Audit"><span>12. Enterprise Audit Log</span><span class="rivet"></span></a></li>
+                <li><a class="nexus-nav-link" href="/Identity/Login"><span>13. Operator Identity / RBAC</span><span class="rivet"></span></a></li>
+            </ul>
+
+            <div class="inset-panel" style="margin-top:auto;">
+                <div class="metric-display-label">ENTERPRISE ENTITY</div>
+                <div class="mono-num text-cyan" style="font-size:12px;font-weight:700;">NEXUS GLOBAL INDUSTRIES</div>
+                <div class="text-muted" style="font-size:11px;margin-top:4px;">50 Suppliers • 20 Factories • 40 Warehouses • 1,104 Edges</div>
+            </div>
+        </aside>
+
+        <div class="nexus-main-area">
+            <header class="nexus-topbar">
+                <div class="state-telemetry-strip">
+                    <span><span class="status-led"></span> CORE PIPELINE: <strong>ONLINE</strong></span>
+                    <span>SOLVER: <strong>GOOGLE OR-TOOLS GLOP/SCIP</strong></span>
+                    <span>MONTE CARLO: <strong>10,000 FUTURES</strong></span>
+                    <span>ML ENGINE: <strong>XGBOOST / FASTAPI</strong></span>
+                </div>
+                <div style="display:flex;align-items:center;gap:10px;">
+                    <button type="button" id="btn-run-hero-demo" class="physical-button physical-button-primary">
+                        RUN 15-STEP HERO DEMO (EU SUPPLIER -40%)
+                    </button>
+                    <a href="/Identity/Login" class="physical-button">
+                        OPERATOR: @(User.Identity?.IsAuthenticated == true ? User.Identity.Name : "MARCUS VANCE [APPROVER]")
+                    </a>
+                </div>
+            </header>
+
+            <main class="nexus-content">
+                <div id="hero-demo-live-output" hidden></div>
+                @RenderBody()
+            </main>
+        </div>
+    </div>
+
+    <script src="~/js/site.js"></script>
+    <script src="~/js/components.js"></script>
+    <script src="~/js/dashboard.js"></script>
+    <script src="~/js/digital-twin.js"></script>
+    <script src="~/js/dependency-graph.js"></script>
+    <script src="~/js/scenario.js"></script>
+    <script src="~/js/simulation.js"></script>
+    <script src="~/js/optimization.js"></script>
+    <script src="~/js/decision-engine.js"></script>
+    <script src="~/js/analytics.js"></script>
+    <script src="~/js/forecasting.js"></script>
+    <script src="~/js/execution.js"></script>
+</body>
+</html>

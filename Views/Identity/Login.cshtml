@@ -1,0 +1,69 @@
+@model IReadOnlyList<NEXUS.Modules.Identity.Domain.NexusUser>
+
+<div class="grid-2">
+    <section class="command-panel">
+        <div class="panel-header-bar">
+            <h1 class="panel-title"><span class="status-led amber"></span> OPERATOR IDENTITY CONSOLE — ASP.NET CORE IDENTITY</h1>
+        </div>
+
+        @if (TempData["AuthError"] is string err)
+        {
+            <div class="critical-panel" style="margin-bottom:12px;">@err</div>
+        }
+
+        <form method="post" action="/Identity/Login">
+            @Html.AntiForgeryToken()
+            <div class="control-group">
+                <label for="login-email">Operator Email</label>
+                <input type="email" id="login-email" name="email" value="ops@nexus-global.io" required />
+            </div>
+            <div class="control-group">
+                <label for="login-password">Security Passkey</label>
+                <input type="password" id="login-password" name="password" value="Nexus#2026!" required />
+            </div>
+            <button type="submit" class="physical-button physical-button-primary">AUTHENTICATE OPERATOR</button>
+        </form>
+
+        @if (User.Identity?.IsAuthenticated == true)
+        {
+            <form method="post" action="/Identity/Logout" style="margin-top:12px;">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="physical-button physical-button-danger">SIGN OUT (@User.Identity.Name)</button>
+            </form>
+        }
+    </section>
+
+    <section class="metal-panel">
+        <div class="panel-header-bar">
+            <h2 class="panel-title">ROLE-BASED AUTHORIZATION CONSOLE (8 ENTERPRISE ROLES)</h2>
+        </div>
+
+        <table class="industrial-table">
+            <thead>
+                <tr>
+                    <th>Operator</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Quick Console Switch</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var u in Model)
+                {
+                    <tr>
+                        <td>@u.FullName</td>
+                        <td class="mono-num">@u.Email</td>
+                        <td><span class="badge-chip optimal">@u.PrimaryRoleTitle</span></td>
+                        <td>
+                            <form method="post" action="/Identity/QuickRoleLogin" style="display:inline;">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="email" value="@u.Email" />
+                                <button type="submit" class="physical-button">ACTIVATE SESSION</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </section>
+</div>

@@ -1,1 +1,0 @@
-.nexus-toast { position: fixed; bottom: 20px; right: 20px; background: var(--nexus-surface-raised); border: 1px solid var(--nexus-accent); border-radius: var(--nexus-radius-sm); padding: 10px 16px; box-shadow: var(--nexus-shadow-raised); font-size: 0.85rem; z-index: 60; }

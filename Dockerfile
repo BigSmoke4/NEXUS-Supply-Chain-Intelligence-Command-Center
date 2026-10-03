@@ -1,16 +1,19 @@
-# Multi-stage build (§65). Build with:
-#   docker build -t nexus-web .
-# Run with:
-#   docker run -p 8080:8080 --env ConnectionStrings__Nexus="Host=...;..." nexus-web
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /src
-COPY . .
-RUN dotnet restore Nexus.sln
-RUN dotnet publish src/Nexus.Web/Nexus.Web.csproj -c Release -o /app/publish
+
+COPY NEXUS.csproj ./
+RUN dotnet restore NEXUS.csproj
+
+COPY . ./
+RUN dotnet publish NEXUS.csproj -c Release -o /app/publish /p:UseAppHost=false
 
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS final
 WORKDIR /app
+
 COPY --from=build /app/publish .
-ENV ASPNETCORE_URLS=http://+:8080
+
+ENV ASPNETCORE_URLS=http://0.0.0.0:8080
+ENV ASPNETCORE_ENVIRONMENT=Production
 EXPOSE 8080
-ENTRYPOINT ["dotnet", "Nexus.Web.dll"]
+
+ENTRYPOINT ["dotnet", "NEXUS.dll"]

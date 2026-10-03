@@ -1,0 +1,30 @@
+.explainability-triad {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.replay-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.replay-item {
+  display: grid;
+  grid-template-columns: 70px 220px 1fr;
+  gap: 12px;
+  align-items: center;
+  padding: 9px 12px;
+  background: #0b0f15;
+  border: 1px solid #263242;
+  border-left: 3px solid var(--accent-cyan);
+  border-radius: 4px;
+  font-size: 12.5px;
+}
+
+.replay-item.active-replay-step {
+  border-left-color: var(--accent-amber);
+  background: rgba(245, 158, 11, 0.12);
+}

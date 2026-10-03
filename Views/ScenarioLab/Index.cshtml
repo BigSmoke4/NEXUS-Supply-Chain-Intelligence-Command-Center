@@ -1,0 +1,124 @@
+@model NEXUS.Modules.ScenarioManagement.Presentation.ScenarioLabViewModel
+
+<div class="scenario-lab-grid">
+    <section class="control-panel">
+        <div class="panel-header-bar">
+            <h1 class="panel-title"><span class="status-led amber"></span> SCENARIO LAB — BUILDER</h1>
+            <select id="scenario-preset-selector" style="background:#0a0e13;color:#fbbf24;border:1px solid #324052;padding:5px 8px;border-radius:4px;font-family:monospace;font-size:11px;">
+                <option value="">Load Preset...</option>
+                <option value="hero">Hero: EU Supplier 60% Cap (14d)</option>
+                <option value="compound">Section 12: Cap 50% + Dem +30% + Trn +20%</option>
+            </select>
+        </div>
+
+        <form method="post" action="/ScenarioLab/Create">
+            @Html.AntiForgeryToken()
+            <div class="control-group">
+                <label for="scn-name">Scenario Designation</label>
+                <input type="text" id="scn-name" name="name" value="European Supplier 40% Capacity Disruption (14 Days)" required />
+            </div>
+
+            <div class="control-group">
+                <label for="scn-type">Disruption Classification</label>
+                <select id="scn-type" name="scenarioType">
+                    @foreach (var t in ScenarioTypes.All)
+                    {
+                        <option value="@t">@t</option>
+                    }
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label for="scn-asset">Primary Target Asset</label>
+                <select id="scn-asset" name="targetAssetCode">
+                    @foreach (var a in Model.AvailableAssets)
+                    {
+                        <option value="@a.AssetCode">@a.AssetCode — @a.Name (@a.Region)</option>
+                    }
+                </select>
+            </div>
+
+            <div class="grid-2">
+                <div class="control-group">
+                    <label for="scn-duration">Duration (Days)</label>
+                    <input type="number" id="scn-duration" name="durationDays" value="14" min="1" max="180" />
+                </div>
+                <div class="control-group">
+                    <label for="scn-sup-cap">Supplier Capacity (%)</label>
+                    <input type="number" id="scn-sup-cap" name="supplierCapacityMultiplierPct" value="60" min="0" max="150" />
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <div class="control-group">
+                    <label for="scn-demand">Demand Shift (%)</label>
+                    <input type="number" id="scn-demand" name="demandDeltaPct" value="30" min="-80" max="200" />
+                </div>
+                <div class="control-group">
+                    <label for="scn-transport">Transport Cost Shift (%)</label>
+                    <input type="number" id="scn-transport" name="transportCostDeltaPct" value="20" min="-50" max="300" />
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <div class="control-group">
+                    <label for="scn-factory">Factory Capacity Shift (%)</label>
+                    <input type="number" id="scn-factory" name="factoryCapacityDeltaPct" value="0" min="-90" max="100" />
+                </div>
+                <div class="control-group">
+                    <label for="scn-energy">Energy Price Shift (%)</label>
+                    <input type="number" id="scn-energy" name="energyCostDeltaPct" value="0" min="-50" max="300" />
+                </div>
+            </div>
+
+            <button type="submit" class="physical-button physical-button-primary" style="width:100%;">
+                REGISTER WHAT-IF SCENARIO
+            </button>
+        </form>
+    </section>
+
+    <section class="metal-panel">
+        <div class="panel-header-bar">
+            <h2 class="panel-title"><span class="status-led cyan"></span> REGISTERED WHAT-IF SCENARIOS (@Model.Scenarios.Count)</h2>
+        </div>
+
+        @foreach (var s in Model.Scenarios)
+        {
+            <div class="inset-panel" style="margin-bottom:14px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                    <strong class="mono-num text-cyan">@s.ScenarioCode — @s.Name</strong>
+                    <span class="badge-chip @(s.IsHeroScenario ? "optimal" : "medium")">@s.ScenarioType</span>
+                </div>
+                <p class="text-muted" style="margin:4px 0 8px;">@s.Description</p>
+                <div style="margin-bottom:10px;">
+                    <span class="scenario-param-pill">Target: @s.TargetAssetCode</span>
+                    <span class="scenario-param-pill">Supplier Cap: 100% -> @s.SupplierCapacityMultiplierPct.ToString("F0")%</span>
+                    <span class="scenario-param-pill">Demand: @(s.DemandDeltaPct >= 0 ? "+" : "")@s.DemandDeltaPct.ToString("F0")%</span>
+                    <span class="scenario-param-pill">Transport Cost: @(s.TransportCostDeltaPct >= 0 ? "+" : "")@s.TransportCostDeltaPct.ToString("F0")%</span>
+                    <span class="scenario-param-pill">Horizon: @s.DurationDays Days</span>
+                </div>
+
+                <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                    <form method="post" action="/Simulation/Run" style="display:inline;">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="scenarioId" value="@s.Id" />
+                        <input type="hidden" name="monteCarloIterations" value="10000" />
+                        <button type="submit" class="physical-button physical-button-primary">RUN SIMULATION (10,000 FUTURES)</button>
+                    </form>
+
+                    <form method="post" action="/Optimization/Run" style="display:inline;">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="scenarioId" value="@s.Id" />
+                        <button type="submit" class="physical-button">OPTIMIZE (OR-TOOLS)</button>
+                    </form>
+
+                    <form method="post" action="/DecisionEngine/Generate" style="display:inline;">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="scenarioId" value="@s.Id" />
+                        <button type="submit" class="physical-button physical-button-success">GENERATE AUTONOMOUS DECISION</button>
+                    </form>
+                </div>
+            </div>
+        }
+    </section>
+</div>

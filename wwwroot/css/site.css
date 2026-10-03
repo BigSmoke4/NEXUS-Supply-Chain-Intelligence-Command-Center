@@ -1,0 +1,165 @@
+:root {
+  --bg-chassis: #0f1318;
+  --bg-graphite: #161b22;
+  --bg-gunmetal: #1d242e;
+  --bg-steel: #252e3a;
+  --bg-recessed: #0a0d11;
+  --border-bevel-light: rgba(255, 255, 255, 0.12);
+  --border-bevel-dark: rgba(0, 0, 0, 0.82);
+  --border-steel: #333f4f;
+  --text-primary: #e6edf5;
+  --text-secondary: #9fb0c4;
+  --text-muted: #697a8f;
+  --accent-amber: #f59e0b;
+  --accent-cyan: #06b6d4;
+  --accent-emerald: #10b981;
+  --accent-crimson: #ef4444;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'SFMono-Regular', Consolas, monospace;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg-chassis);
+  background-image:
+    radial-gradient(circle at 20% 0%, rgba(38, 52, 71, 0.35), transparent 55%),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.012) 0px, rgba(255, 255, 255, 0.012) 1px, transparent 1px, transparent 4px);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.5;
+  min-height: 100vh;
+}
+
+a {
+  color: var(--accent-cyan);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+.nexus-shell {
+  display: grid;
+  grid-template-columns: 265px 1fr;
+  min-height: 100vh;
+}
+
+.nexus-sidebar {
+  background: linear-gradient(180deg, #1a212b 0%, #12171e 100%);
+  border-right: 2px solid #090c10;
+  box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.07), 4px 0 18px rgba(0, 0, 0, 0.65);
+  display: flex;
+  flex-direction: column;
+  padding: 16px 14px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.nexus-brand-plate {
+  background: linear-gradient(145deg, #242d3a, #171d26);
+  border: 1px solid #384659;
+  border-radius: 6px;
+  padding: 12px 14px;
+  margin-bottom: 16px;
+  position: relative;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14), 0 4px 10px rgba(0, 0, 0, 0.6);
+}
+
+.nexus-brand-title {
+  font-family: var(--font-mono);
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 2.5px;
+  color: #f8fafc;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nexus-brand-subtitle {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1.4px;
+  color: var(--accent-amber);
+  margin-top: 4px;
+  font-family: var(--font-mono);
+}
+
+.nexus-nav-section-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--text-muted);
+  margin: 12px 6px 6px;
+}
+
+.nexus-nav-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.nexus-nav-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 12px;
+  border-radius: 5px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: linear-gradient(180deg, #212935 0%, #19202a 100%);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-left: 1px solid rgba(255, 255, 255, 0.05);
+  border-right: 1px solid rgba(0, 0, 0, 0.7);
+  border-bottom: 2px solid rgba(0, 0, 0, 0.85);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.45);
+  transition: all 0.12s ease;
+}
+
+.nexus-nav-link:hover,
+.nexus-nav-link.active {
+  color: #ffffff;
+  text-decoration: none;
+  background: linear-gradient(180deg, #2a3546 0%, #1e2734 100%);
+  border-left: 3px solid var(--accent-amber);
+}
+
+.nexus-main-area {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.nexus-topbar {
+  background: linear-gradient(180deg, #222b37 0%, #171d26 100%);
+  border-bottom: 2px solid #090c10;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 4px 14px rgba(0, 0, 0, 0.55);
+  padding: 10px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.nexus-content {
+  padding: 20px 24px 40px;
+  max-width: 1720px;
+  width: 100%;
+  margin: 0 auto;
+}

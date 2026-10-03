@@ -1,0 +1,143 @@
+@model NEXUS.Modules.Analytics.Presentation.AnalyticsViewModel
+@{
+    var r = Model.Resilience;
+    var bs = Model.BlackSwanResult;
+    var mp = Model.MitigationPortfolio;
+}
+
+<!-- Section 25: Enterprise Resilience Score -->
+<section class="command-panel" style="margin-bottom:18px;">
+    <div class="panel-header-bar">
+        <h1 class="panel-title"><span class="status-led"></span> ENTERPRISE RESILIENCE SCORE &amp; MITIGATION SIMULATOR</h1>
+        <label class="toggle-switch">
+            <input type="checkbox" id="resilience-mitigation-sim-toggle"
+                   data-before="@r.SimulatedCurrentDisruptedScore.ToString("F0")"
+                   data-after="@r.SimulatedAfterMitigationScore.ToString("F0")"
+                   checked />
+            <span>SIMULATE MITIGATION ACTIVE (Current: @r.SimulatedCurrentDisruptedScore.ToString("F0") -> After Mitigation: @r.SimulatedAfterMitigationScore.ToString("F0"))</span>
+        </label>
+    </div>
+
+    <div class="grid-3" style="margin-bottom:14px;">
+        <div class="metric-display">
+            <span class="metric-display-label">ENTERPRISE RESILIENCE</span>
+            <span class="metric-display-value text-emerald">@r.OverallScore.ToString("F0") / 100</span>
+            <span class="text-muted mono-num">Nominal Baseline Index</span>
+        </div>
+        <div class="metric-display">
+            <span class="metric-display-label">CURRENT DISRUPTED SCORE</span>
+            <span class="metric-display-value text-amber">@r.SimulatedCurrentDisruptedScore.ToString("F0") / 100</span>
+            <span class="text-muted mono-num">Under Active European Supplier Shock</span>
+        </div>
+        <div class="metric-display">
+            <span class="metric-display-label">AFTER MITIGATION SCORE</span>
+            <span id="resilience-simulated-value" class="metric-display-value text-cyan">@r.SimulatedAfterMitigationScore.ToString("F0") / 100</span>
+            <span class="text-muted mono-num">+12.0 Resilience Points Restored</span>
+        </div>
+    </div>
+
+    <div class="resilience-radar-grid">
+        <div class="gauge"><span class="metric-display-label">Supplier Diversity</span><strong class="mono-num">@r.SupplierDiversityScore.ToString("F0")/100</strong></div>
+        <div class="gauge"><span class="metric-display-label">Capacity Redundancy</span><strong class="mono-num">@r.CapacityRedundancyScore.ToString("F0")/100</strong></div>
+        <div class="gauge"><span class="metric-display-label">Inventory Buffer</span><strong class="mono-num">@r.InventoryBufferScore.ToString("F0")/100</strong></div>
+        <div class="gauge"><span class="metric-display-label">Dependency Risk</span><strong class="mono-num">@r.DependencyRiskScore.ToString("F0")/100</strong></div>
+        <div class="gauge"><span class="metric-display-label">Transport Redundancy</span><strong class="mono-num">@r.TransportationRedundancyScore.ToString("F0")/100</strong></div>
+        <div class="gauge"><span class="metric-display-label">Recovery Capability</span><strong class="mono-num">@r.RecoveryCapabilityScore.ToString("F0")/100</strong></div>
+        <div class="gauge"><span class="metric-display-label">Service Level</span><strong class="mono-num">@r.ServiceLevelScore.ToString("F0")/100</strong></div>
+        <div class="gauge"><span class="metric-display-label">Operational Flexibility</span><strong class="mono-num">@r.OperationalFlexibilityScore.ToString("F0")/100</strong></div>
+    </div>
+</section>
+
+<!-- Section 24: Black Swan Stress Test -->
+<section class="metal-panel" style="margin-bottom:18px;">
+    <div class="panel-header-bar">
+        <h2 class="panel-title"><span class="status-led red"></span> BLACK SWAN STRESS TEST LAB (@bs.ScenariosEvaluated.ToString("N0") SIMULTANEOUS SCENARIOS)</h2>
+    </div>
+
+    <form method="get" action="/Analytics" class="inset-panel" style="margin-bottom:14px;">
+        <div class="black-swan-sliders">
+            <div class="control-group">
+                <label>Supplier Capacity (%)</label>
+                <input type="number" name="supDelta" value="@bs.SupplierCapacityDeltaPct" />
+            </div>
+            <div class="control-group">
+                <label>Demand (%)</label>
+                <input type="number" name="demDelta" value="@bs.DemandDeltaPct" />
+            </div>
+            <div class="control-group">
+                <label>Transport Capacity (%)</label>
+                <input type="number" name="trnDelta" value="@bs.TransportCapacityDeltaPct" />
+            </div>
+            <div class="control-group">
+                <label>Energy Cost (%)</label>
+                <input type="number" name="engDelta" value="@bs.EnergyCostDeltaPct" />
+            </div>
+            <div class="control-group">
+                <label>Factory Capacity (%)</label>
+                <input type="number" name="facDelta" value="@bs.FactoryCapacityDeltaPct" />
+            </div>
+        </div>
+        <button type="submit" class="physical-button physical-button-danger">RUN STRESS TEST</button>
+    </form>
+
+    <div class="grid-3">
+        <div class="critical-panel">
+            <div class="metric-display-label">MOST VULNERABLE SUPPLIER</div>
+            <div class="mono-num text-crimson" style="font-size:15px;font-weight:700;margin-top:4px;">@bs.MostVulnerableSupplierCode — @bs.MostVulnerableSupplierName</div>
+            <div class="metric-display-label" style="margin-top:10px;">MOST VULNERABLE FACTORY</div>
+            <div class="mono-num text-amber" style="font-size:14px;font-weight:700;margin-top:4px;">@bs.MostVulnerableFactoryCode — @bs.MostVulnerableFactoryName</div>
+        </div>
+
+        <div class="warning-panel">
+            <div class="metric-display-label">MOST DANGEROUS DEPENDENCY</div>
+            <div class="mono-num" style="font-size:13px;font-weight:700;margin-top:4px;">@bs.MostDangerousDependencyDescription</div>
+            <div class="metric-display-label" style="margin-top:10px;">WORST-CASE REVENUE LOSS (P99)</div>
+            <div class="mono-num text-crimson" style="font-size:20px;font-weight:800;margin-top:4px;">$@((bs.WorstCaseRevenueLossUsd / 1_000_000m).ToString("F2"))M</div>
+        </div>
+
+        <div class="control-panel">
+            <div class="metric-display-label">MOST EFFECTIVE MITIGATION</div>
+            <div class="mono-num text-emerald" style="font-size:14px;font-weight:700;margin-top:4px;">@bs.MostEffectiveMitigationCode — @bs.MostEffectiveMitigationName</div>
+            <div class="mono-num text-muted" style="margin-top:8px;">Protects up to $@((bs.MitigationProtectedRevenueUsd / 1_000_000m).ToString("F2"))M under Black Swan stress.</div>
+        </div>
+    </div>
+</section>
+
+<!-- Section 26: Optimal Mitigation Planner -->
+<section class="metal-panel">
+    <div class="panel-header-bar">
+        <h2 class="panel-title"><span class="status-led cyan"></span> OPTIMAL MITIGATION PLANNER (INVESTMENT ROI MATRIX)</h2>
+        <span class="badge-chip optimal">BEST INVESTMENT: @mp.BestSingleInvestmentCode — @mp.BestSingleInvestmentName</span>
+    </div>
+    <table class="industrial-table">
+        <thead>
+            <tr>
+                <th>Code</th>
+                <th>Category</th>
+                <th>Mitigation Investment</th>
+                <th>Investment Cost</th>
+                <th>Risk Reduction</th>
+                <th>Revenue Protected</th>
+                <th>Resilience Gain</th>
+                <th>ROI</th>
+                <th>OR-Tools Selection</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var m in mp.EvaluatedMitigations)
+            {
+                <tr>
+                    <td class="mono-num">@m.MitigationCode</td>
+                    <td>@m.InvestmentType</td>
+                    <td><strong>@m.Name</strong></td>
+                    <td class="mono-num">$@m.InvestmentCostUsd.ToString("N0")</td>
+                    <td class="mono-num text-cyan">-@m.RiskReductionPct.ToString("F1")%</td>
+                    <td class="mono-num text-emerald">$@m.AnnualRevenueProtectedUsd.ToString("N0")</td>
+                    <td class="mono-num text-amber">+@m.ResiliencePointsGain.ToString("F1") pts</td>
+                    <td class="mono-num">@m.RoiMultiple.ToString("F2")x</td>
+                    <td><span class="badge-chip @(m.IsOptimalSelection ? "optimal" : "low")">@(m.IsOptimalSelection ? "OPTIMAL PICK" : "CANDIDATE")</span></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</section>

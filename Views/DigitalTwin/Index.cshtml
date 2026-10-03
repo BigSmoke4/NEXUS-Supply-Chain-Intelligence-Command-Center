@@ -1,0 +1,176 @@
+@model NEXUS.Modules.DigitalTwin.Presentation.DigitalTwinViewModel
+@using System.Text.Json
+@{
+    var jsonOpts = new JsonSerializerOptions(JsonSerializerDefaults.Web);
+    var nodesJson = JsonSerializer.Serialize(Model.Graph.Nodes, jsonOpts);
+    var edgesJson = JsonSerializer.Serialize(Model.Graph.Edges, jsonOpts);
+    var critJson = JsonSerializer.Serialize(Model.Graph.CriticalPathAssetCodes, jsonOpts);
+    var bottleJson = JsonSerializer.Serialize(Model.Graph.BottleneckAssetCodes, jsonOpts);
+    var sel = Model.SelectedAsset;
+}
+
+<section class="command-panel" style="margin-bottom:18px;">
+    <div class="panel-header-bar">
+        <h1 class="panel-title"><span class="status-led cyan"></span> ENTERPRISE DIGITAL TWIN — NEXUS GLOBAL INDUSTRIES</h1>
+        <div style="display:flex;gap:8px;">
+            <a class="physical-button" href="/DigitalTwin?select=SUP-001">SELECT EUROPEAN SUPPLIER (SUP-001)</a>
+            <a class="physical-button" href="/DigitalTwin?select=FAC-002">SELECT FACTORY B (FAC-002)</a>
+        </div>
+    </div>
+
+    <div class="twin-toolbar">
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+            <button type="button" id="btn-graph-zoom-in" class="physical-button">ZOOM +</button>
+            <button type="button" id="btn-graph-zoom-out" class="physical-button">ZOOM -</button>
+            <button type="button" id="btn-graph-reset" class="physical-button">RESET VIEW</button>
+            <input type="text" id="input-graph-search" placeholder="Search asset code or name..." style="background:#0a0e13;color:#e6edf5;border:1px solid #324052;padding:7px 10px;border-radius:4px;font-family:monospace;" />
+            <select id="select-graph-type" style="background:#0a0e13;color:#e6edf5;border:1px solid #324052;padding:7px 10px;border-radius:4px;font-family:monospace;">
+                <option value="ALL">All Asset Classes</option>
+                <option value="Supplier">Suppliers (@Model.SupplyChain.SuppliersCount)</option>
+                <option value="Factory">Factories (@Model.SupplyChain.FactoriesCount)</option>
+                <option value="Warehouse">Warehouses (@Model.SupplyChain.WarehousesCount)</option>
+                <option value="DistributionCenter">Distribution Centers (@Model.SupplyChain.DistributionCentersCount)</option>
+                <option value="TransportationRoute">Transportation Routes (@Model.SupplyChain.TransportationRoutesCount)</option>
+                <option value="Market">Markets (@Model.SupplyChain.MarketsCount)</option>
+                <option value="Customer">Customers (@Model.SupplyChain.CustomersCount)</option>
+            </select>
+        </div>
+
+        <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap;">
+            <label class="toggle-switch"><input type="checkbox" id="chk-graph-critical" /><span>CRITICAL PATH</span></label>
+            <label class="toggle-switch"><input type="checkbox" id="chk-graph-bottlenecks" /><span>BOTTLENECKS / OVERLOADED</span></label>
+            <label class="toggle-switch"><input type="checkbox" id="chk-graph-highrisk" /><span>HIGH-RISK NODES</span></label>
+        </div>
+    </div>
+
+    <div class="twin-workspace">
+        <div class="js-enterprise-graph-container graph-viewport-frame"
+             data-nodes="@nodesJson"
+             data-edges="@edgesJson"
+             data-critical-path="@critJson"
+             data-bottlenecks="@bottleJson">
+            <svg class="graph-svg-surface" aria-label="Interactive Digital Twin Graph"></svg>
+            <div class="graph-legend-bar">
+                <span>CLICK ANY NODE TO INSPECT TELEMETRY</span>
+                <span>DRAG TO PAN • ZOOM CONTROLS ACTIVE</span>
+            </div>
+        </div>
+
+        <aside class="control-panel twin-inspector-card" aria-label="Selected Asset Telemetry Inspector">
+            <div class="panel-header-bar">
+                <h2 class="panel-title"><span class="status-led amber"></span> ASSET INSPECTOR</h2>
+                <span id="inspector-asset-code" class="badge-chip">@sel.AssetCode (@sel.AssetType)</span>
+            </div>
+
+            <div class="digital-display" id="inspector-asset-name" style="font-weight:700;font-size:14px;">@sel.Name</div>
+
+            <div class="twin-kv-row">
+                <span>Utilization</span>
+                <strong id="inspector-utilization" class="text-amber">@sel.UtilizationPct.ToString("F0")%</strong>
+            </div>
+            <div class="twin-kv-row">
+                <span>Capacity</span>
+                <strong id="inspector-capacity">@sel.Capacity.ToString("N0") units/day</strong>
+            </div>
+            <div class="twin-kv-row">
+                <span>Current Load</span>
+                <strong id="inspector-load">@sel.CurrentLoad.ToString("N0") units/day</strong>
+            </div>
+            <div class="twin-kv-row">
+                <span>Risk</span>
+                <strong id="inspector-risk" class="text-amber">@sel.RiskLevel</strong>
+            </div>
+            <div class="twin-kv-row">
+                <span>Dependent Warehouses</span>
+                <strong id="inspector-warehouses">@sel.DependentWarehousesCount</strong>
+            </div>
+            <div class="twin-kv-row">
+                <span>Revenue Exposure</span>
+                <strong id="inspector-exposure" class="text-emerald">$@((sel.DailyRevenueExposureUsd / 1_000_000m).ToString("F1"))M/day</strong>
+            </div>
+
+            <form method="post" action="/DigitalTwin/UpdateCapacity" class="inset-panel" style="margin-top:8px;">
+                @Html.AntiForgeryToken()
+                <input type="hidden" id="input-override-asset-code" name="assetCode" value="@sel.AssetCode" />
+                <div class="control-group">
+                    <label for="input-override-availability">Operational Capacity Override: <span id="lbl-avail-val">@sel.AvailabilityPct.ToString("F0")%</span></label>
+                    <input type="range" id="input-override-availability" name="availabilityPct" min="10" max="100" step="5"
+                           value="@sel.AvailabilityPct.ToString("F0")"
+                           data-range-display="lbl-avail-val" data-range-unit="%" />
+                </div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                    <button type="submit" class="physical-button physical-button-primary">APPLY CAPACITY CHANGE</button>
+                    <a id="link-analyze-impact" class="physical-button" href="/DependencyGraph?asset=@sel.AssetCode">RUN IMPACT ANALYSIS</a>
+                </div>
+            </form>
+        </aside>
+    </div>
+</section>
+
+<div class="grid-2">
+    <section class="metal-panel">
+        <div class="panel-header-bar">
+            <h2 class="panel-title">FACTORIES TELEMETRY (@Model.SupplyChain.FactoriesCount PLANTS)</h2>
+        </div>
+        <table class="industrial-table">
+            <thead>
+                <tr>
+                    <th>Code</th>
+                    <th>Factory</th>
+                    <th>Capacity</th>
+                    <th>Current Load</th>
+                    <th>Utilization</th>
+                    <th>Dep. Warehouses</th>
+                    <th>Exposure/Day</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var f in Model.SupplyChain.Factories.Take(8))
+                {
+                    <tr>
+                        <td class="mono-num"><a href="/DigitalTwin?select=@f.FactoryCode">@f.FactoryCode</a></td>
+                        <td>@f.Name</td>
+                        <td class="mono-num">@f.CapacityUnitsPerDay.ToString("N0")</td>
+                        <td class="mono-num">@f.CurrentLoadUnitsPerDay.ToString("N0")</td>
+                        <td class="mono-num text-amber">@f.UtilizationPct.ToString("F0")%</td>
+                        <td class="mono-num">@f.DependentWarehousesCount</td>
+                        <td class="mono-num text-emerald">$@((f.DailyRevenueExposureUsd / 1_000_000m).ToString("F1"))M</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </section>
+
+    <section class="metal-panel">
+        <div class="panel-header-bar">
+            <h2 class="panel-title">TIER-1 SUPPLIERS TELEMETRY (@Model.SupplyChain.SuppliersCount SUPPLIERS)</h2>
+        </div>
+        <table class="industrial-table">
+            <thead>
+                <tr>
+                    <th>Code</th>
+                    <th>Supplier</th>
+                    <th>Location</th>
+                    <th>Capacity</th>
+                    <th>Reliability</th>
+                    <th>Availability</th>
+                    <th>Risk</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var s in Model.SupplyChain.TopSuppliers.Take(8))
+                {
+                    <tr>
+                        <td class="mono-num"><a href="/DigitalTwin?select=@s.SupplierCode">@s.SupplierCode</a></td>
+                        <td>@s.Name</td>
+                        <td>@s.Location</td>
+                        <td class="mono-num">@s.CapacityUnitsPerDay.ToString("N0")</td>
+                        <td class="mono-num text-cyan">@s.ReliabilityPct.ToString("F1")%</td>
+                        <td class="mono-num">@s.AvailabilityPct.ToString("F0")%</td>
+                        <td><span class="badge-chip @s.RiskLevel.ToLowerInvariant()">@s.RiskLevel</span></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </section>
+</div>

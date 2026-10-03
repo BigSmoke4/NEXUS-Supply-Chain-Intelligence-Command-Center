@@ -1,0 +1,95 @@
+@model NEXUS.Modules.DependencyGraph.Presentation.DependencyGraphViewModel
+@using System.Text.Json
+@{
+    var jsonOpts = new JsonSerializerOptions(JsonSerializerDefaults.Web);
+    var nodesJson = JsonSerializer.Serialize(Model.Graph.Nodes, jsonOpts);
+    var edgesJson = JsonSerializer.Serialize(Model.Graph.Edges, jsonOpts);
+    var critJson = JsonSerializer.Serialize(Model.Graph.CriticalPathAssetCodes, jsonOpts);
+    var bottleJson = JsonSerializer.Serialize(Model.Graph.BottleneckAssetCodes, jsonOpts);
+}
+
+<section class="command-panel" style="margin-bottom:18px;">
+    <div class="panel-header-bar">
+        <h1 class="panel-title"><span class="status-led cyan"></span> ENTERPRISE DEPENDENCY GRAPH &amp; FAILURE PROPAGATION ENGINE</h1>
+        <form method="get" action="/DependencyGraph" style="display:flex;gap:8px;align-items:center;">
+            <input type="text" name="asset" value="@Model.Impact.RootAssetCode" style="background:#0a0e13;color:#e6edf5;border:1px solid #324052;padding:7px 10px;border-radius:4px;font-family:monospace;width:110px;" />
+            <input type="number" name="reductionPct" value="@Model.Impact.AppliedCapacityReductionPct" min="5" max="100" style="background:#0a0e13;color:#e6edf5;border:1px solid #324052;padding:7px 10px;border-radius:4px;font-family:monospace;width:85px;" />
+            <input type="number" name="durationDays" value="@Model.Impact.DurationDays" min="1" max="90" style="background:#0a0e13;color:#e6edf5;border:1px solid #324052;padding:7px 10px;border-radius:4px;font-family:monospace;width:85px;" />
+            <button type="submit" class="physical-button physical-button-primary">PROPAGATE DISRUPTION</button>
+        </form>
+    </div>
+
+    <div class="grid-4" style="margin-bottom:14px;">
+        <div class="metric-display">
+            <span class="metric-display-label">DISRUPTION SOURCE</span>
+            <span class="metric-display-value text-cyan">@Model.Impact.RootAssetCode (-@Model.Impact.AppliedCapacityReductionPct.ToString("F0")%)</span>
+            <span class="text-muted">@Model.Impact.RootAssetName</span>
+        </div>
+        <div class="metric-display">
+            <span class="metric-display-label">DOWNSTREAM AFFECTED NODES</span>
+            <span class="metric-display-value text-amber">@Model.Impact.TotalAffectedDownstreamNodes</span>
+            <span class="text-muted mono-num">@Model.Impact.AffectedFactoriesCount Factories • @Model.Impact.AffectedWarehousesCount Warehouses</span>
+        </div>
+        <div class="metric-display">
+            <span class="metric-display-label">HORIZON REVENUE EXPOSURE</span>
+            <span class="metric-display-value text-crimson">$@((Model.Impact.TotalHorizonRevenueAtRiskUsd / 1_000_000m).ToString("F2"))M</span>
+            <span class="text-muted mono-num">$@((Model.Impact.DailyRevenueAtRiskUsd / 1_000_000m).ToString("F2"))M/day over @Model.Impact.DurationDays days</span>
+        </div>
+        <div class="metric-display">
+            <span class="metric-display-label">CRITICAL CASCADE PATH</span>
+            <span class="mono-num text-emerald" style="font-size:13px;font-weight:700;margin-top:6px;">@string.Join(" -> ", Model.Impact.CriticalCascadePath)</span>
+            <span class="text-muted mono-num">Projected SLA: @Model.Impact.ProjectedEnterpriseSlaPct.ToString("F1")%</span>
+        </div>
+    </div>
+
+    <div class="js-enterprise-graph-container graph-viewport-frame"
+         data-nodes="@nodesJson"
+         data-edges="@edgesJson"
+         data-critical-path="@critJson"
+         data-bottlenecks="@bottleJson">
+        <svg class="graph-svg-surface" aria-label="Dependency Graph"></svg>
+        <div class="graph-legend-bar">
+            <span>TOTAL ASSETS: @Model.Graph.TotalAssetsCount</span>
+            <span>TOTAL DEPENDENCIES: @Model.Graph.TotalDependenciesCount</span>
+            <span>BOTTLENECKS: @string.Join(", ", Model.Graph.BottleneckAssetCodes.Take(6))</span>
+        </div>
+    </div>
+</section>
+
+<section class="metal-panel">
+    <div class="panel-header-bar">
+        <h2 class="panel-title">MULTI-HOP FAILURE PROPAGATION &amp; IMPACT ANALYSIS TABLE</h2>
+        <a class="physical-button physical-button-primary" href="/ScenarioLab">OPEN IN SCENARIO LAB</a>
+    </div>
+    <table class="industrial-table">
+        <thead>
+            <tr>
+                <th>Hop Depth</th>
+                <th>Asset Code</th>
+                <th>Asset Name</th>
+                <th>Type</th>
+                <th>Propagated Reduction</th>
+                <th>Effective Availability</th>
+                <th>Daily Exposure</th>
+                <th>Horizon Exposure</th>
+                <th>Cascade Mechanism</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var imp in Model.Impact.PropagatedImpacts)
+            {
+                <tr>
+                    <td class="mono-num">Hop @imp.HopDepth</td>
+                    <td class="mono-num"><a href="/DigitalTwin?select=@imp.AssetCode">@imp.AssetCode</a></td>
+                    <td>@imp.Name</td>
+                    <td>@imp.AssetType</td>
+                    <td class="mono-num text-crimson">-@imp.PropagatedCapacityReductionPct.ToString("F1")%</td>
+                    <td class="mono-num text-amber">@imp.ResultingEffectiveAvailabilityPct.ToString("F1")%</td>
+                    <td class="mono-num">$@imp.DailyRevenueExposureUsd.ToString("N0")</td>
+                    <td class="mono-num text-amber">$@imp.CumulativeHorizonRevenueLossUsd.ToString("N0")</td>
+                    <td>@imp.ImpactReason</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</section>
