@@ -1,12 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
 using NEXUS.Modules.Execution.Application;
-using NEXUS.Modules.Execution.Domain;
 
 namespace NEXUS.Modules.Execution.Presentation;
 
 public sealed record ExecutionViewModel(
-    Execution ActiveExecution,
-    IReadOnlyList<Execution> Executions);
+    Domain.Execution ActiveExecution,
+    IReadOnlyList<Domain.Execution> Executions);
 
 public sealed class ExecutionController : Controller
 {

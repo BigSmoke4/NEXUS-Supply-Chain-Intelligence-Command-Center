@@ -25,7 +25,7 @@ public sealed class ExecutionService : IExecutionService
         _audit = audit;
     }
 
-    public async Task<IReadOnlyList<Execution>> GetExecutionsAsync(int count = 25, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<Domain.Execution>> GetExecutionsAsync(int count = 25, CancellationToken cancellationToken = default)
     {
         return await _db.Executions
             .AsNoTracking()
@@ -35,7 +35,7 @@ public sealed class ExecutionService : IExecutionService
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<Execution?> GetExecutionByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<Domain.Execution?> GetExecutionByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         return await _db.Executions
             .AsNoTracking()
@@ -43,7 +43,7 @@ public sealed class ExecutionService : IExecutionService
             .FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
     }
 
-    public async Task<Execution> ExecuteApprovedDecisionAsync(
+    public async Task<Domain.Execution> ExecuteApprovedDecisionAsync(
         Guid decisionId,
         string executedBy = "Operations Manager",
         CancellationToken cancellationToken = default)
@@ -78,7 +78,7 @@ public sealed class ExecutionService : IExecutionService
         decision.ReplayTimelineJson = JsonSerializer.Serialize(timeline);
 
         var count = await _db.Executions.CountAsync(cancellationToken) + 1;
-        var execution = new Execution
+        var execution = new Domain.Execution
         {
             Id = Guid.NewGuid(),
             OrganizationId = NexusSeedData.DefaultOrganizationId,
