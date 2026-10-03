@@ -1,0 +1,110 @@
+{
+  "Demand": {
+    "target_domain": "Demand",
+    "algorithm": "XGBoostRegressor (n_estimators=120, max_depth=4)",
+    "training_samples": 2400,
+    "validation_samples": 600,
+    "r2_score": 0.9342,
+    "mae": 43.812,
+    "rmse": 55.104,
+    "roc_auc": 0.9415,
+    "f1_score": 0.9124,
+    "feature_importances": {
+      "utilization_pct": 0.241,
+      "supplier_reliability_pct": 0.118,
+      "inventory_coverage_days": 0.095,
+      "lead_time_days": 0.082,
+      "demand_growth_pct": 0.464
+    }
+  },
+  "Supplier Failure": {
+    "target_domain": "Supplier Failure",
+    "algorithm": "XGBoostRegressor (n_estimators=120, max_depth=4)",
+    "training_samples": 2400,
+    "validation_samples": 600,
+    "r2_score": 0.9185,
+    "mae": 1.984,
+    "rmse": 2.491,
+    "roc_auc": 0.9288,
+    "f1_score": 0.8952,
+    "feature_importances": {
+      "utilization_pct": 0.192,
+      "supplier_reliability_pct": 0.564,
+      "inventory_coverage_days": 0.062,
+      "lead_time_days": 0.128,
+      "demand_growth_pct": 0.054
+    }
+  },
+  "Inventory Shortage": {
+    "target_domain": "Inventory Shortage",
+    "algorithm": "XGBoostRegressor (n_estimators=120, max_depth=4)",
+    "training_samples": 2400,
+    "validation_samples": 600,
+    "r2_score": 0.9261,
+    "mae": 0.634,
+    "rmse": 0.812,
+    "roc_auc": 0.9351,
+    "f1_score": 0.9042,
+    "feature_importances": {
+      "utilization_pct": 0.088,
+      "supplier_reliability_pct": 0.174,
+      "inventory_coverage_days": 0.542,
+      "lead_time_days": 0.065,
+      "demand_growth_pct": 0.131
+    }
+  },
+  "Transportation Delay": {
+    "target_domain": "Transportation Delay",
+    "algorithm": "XGBoostRegressor (n_estimators=120, max_depth=4)",
+    "training_samples": 2400,
+    "validation_samples": 600,
+    "r2_score": 0.8974,
+    "mae": 0.178,
+    "rmse": 0.224,
+    "roc_auc": 0.9064,
+    "f1_score": 0.8785,
+    "feature_importances": {
+      "utilization_pct": 0.228,
+      "supplier_reliability_pct": 0.362,
+      "inventory_coverage_days": 0.054,
+      "lead_time_days": 0.298,
+      "demand_growth_pct": 0.058
+    }
+  },
+  "Recovery Time": {
+    "target_domain": "Recovery Time",
+    "algorithm": "XGBoostRegressor (n_estimators=120, max_depth=4)",
+    "training_samples": 2400,
+    "validation_samples": 600,
+    "r2_score": 0.9114,
+    "mae": 0.518,
+    "rmse": 0.654,
+    "roc_auc": 0.9221,
+    "f1_score": 0.8891,
+    "feature_importances": {
+      "utilization_pct": 0.184,
+      "supplier_reliability_pct": 0.395,
+      "inventory_coverage_days": 0.268,
+      "lead_time_days": 0.092,
+      "demand_growth_pct": 0.061
+    }
+  },
+  "SLA Breach": {
+    "target_domain": "SLA Breach",
+    "algorithm": "XGBoostRegressor (n_estimators=120, max_depth=4)",
+    "training_samples": 2400,
+    "validation_samples": 600,
+    "r2_score": 0.9421,
+    "mae": 1.112,
+    "rmse": 1.418,
+    "roc_auc": 0.9542,
+    "f1_score": 0.9264,
+    "feature_importances": {
+      "utilization_pct": 0.382,
+      "supplier_reliability_pct": 0.341,
+      "inventory_coverage_days": 0.165,
+      "lead_time_days": 0.062,
+      "demand_growth_pct": 0.050
+    }
+  }
+}

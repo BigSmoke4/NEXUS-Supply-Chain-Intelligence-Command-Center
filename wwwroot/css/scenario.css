@@ -1,0 +1,18 @@
+.scenario-lab-grid {
+  display: grid;
+  grid-template-columns: 410px 1fr;
+  gap: 18px;
+  align-items: start;
+}
+
+.scenario-param-pill {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 3px 8px;
+  margin: 2px 4px 2px 0;
+  border-radius: 4px;
+  background: #10161f;
+  border: 1px solid #2e3b4e;
+  color: #38bdf8;
+}

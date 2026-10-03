@@ -1,0 +1,36 @@
+@model IReadOnlyList<NEXUS.Modules.Audit.Domain.AuditLog>
+
+<section class="command-panel">
+    <div class="panel-header-bar">
+        <h1 class="panel-title"><span class="status-led cyan"></span> IMMUTABLE ENTERPRISE GOVERNANCE &amp; AUDIT TRAIL</h1>
+        <span class="badge-chip optimal">@Model.Count RECENT RECORDS</span>
+    </div>
+
+    <table class="industrial-table">
+        <thead>
+            <tr>
+                <th>Timestamp (UTC)</th>
+                <th>Actor</th>
+                <th>Role</th>
+                <th>Module</th>
+                <th>Action Type</th>
+                <th>Entity</th>
+                <th>Summary</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var log in Model)
+            {
+                <tr>
+                    <td class="mono-num">@log.OccurredAtUtc.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                    <td>@log.ActorName</td>
+                    <td><span class="badge-chip">@log.ActorRole</span></td>
+                    <td class="mono-num text-cyan">@log.ModuleName</td>
+                    <td class="mono-num text-amber">@log.ActionType</td>
+                    <td class="mono-num">@log.EntityType (@log.EntityId)</td>
+                    <td>@log.Summary</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</section>

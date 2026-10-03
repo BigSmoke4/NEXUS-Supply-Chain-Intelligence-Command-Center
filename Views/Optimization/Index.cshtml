@@ -1,0 +1,141 @@
+@model NEXUS.Modules.Optimization.Presentation.OptimizationViewModel
+@{
+    var run = Model.ActiveRun;
+    var portfolio = Model.MitigationPortfolio;
+}
+
+<section class="command-panel" style="margin-bottom:18px;">
+    <div class="panel-header-bar">
+        <h1 class="panel-title"><span class="status-led"></span> MULTI-OBJECTIVE OPTIMIZATION ENGINE — GOOGLE OR-TOOLS</h1>
+        <form id="form-run-optimization" method="post" action="/Optimization/Run" style="display:flex;gap:8px;align-items:center;">
+            @Html.AntiForgeryToken()
+            <select name="scenarioId" style="background:#0a0e13;color:#e6edf5;border:1px solid #324052;padding:7px 10px;border-radius:4px;font-family:monospace;">
+                @foreach (var s in Model.Scenarios)
+                {
+                    <option value="@s.Id" selected="@(s.Id == run.ScenarioId)">@s.ScenarioCode — @s.Name</option>
+                }
+            </select>
+            <input type="number" name="budgetCeilingUsd" value="2200000" step="100000" style="background:#0a0e13;color:#e6edf5;border:1px solid #324052;padding:7px 10px;border-radius:4px;font-family:monospace;width:130px;" />
+            <button type="submit" id="btn-submit-optimization" class="physical-button physical-button-primary">OPTIMIZE</button>
+        </form>
+    </div>
+
+    <div class="grid-4" style="margin-bottom:16px;">
+        <div class="metric-display">
+            <span class="metric-display-label">SOLVER ENGINE &amp; STATUS</span>
+            <span class="metric-display-value text-emerald">@run.SolverStatus</span>
+            <span class="text-muted mono-num">@run.SolverEngine (@run.SolveTimeMs ms)</span>
+        </div>
+        <div class="metric-display">
+            <span class="metric-display-label">REVENUE PROTECTED</span>
+            <span class="metric-display-value text-emerald">$@((run.RevenueProtectedUsd / 1_000_000m).ToString("F2"))M</span>
+            <span class="text-muted mono-num">Optimal Cost: $@((run.OptimalCostUsd / 1_000_000m).ToString("F2"))M</span>
+        </div>
+        <div class="metric-display">
+            <span class="metric-display-label">OPTIMAL SERVICE LEVEL</span>
+            <span class="metric-display-value text-cyan">@run.ResultingServiceLevelPct.ToString("F1")%</span>
+            <span class="text-muted mono-num">Risk Reduction: @run.RiskReductionPct.ToString("F0")%</span>
+        </div>
+        <div class="metric-display">
+            <span class="metric-display-label">POST-OPTIMIZATION RESILIENCE</span>
+            <span class="metric-display-value text-amber">@run.ResultingResilienceScore.ToString("F0") / 100</span>
+            <span class="text-muted mono-num">Multi-Objective Utility: @run.ObjectiveValue</span>
+        </div>
+    </div>
+
+    <div class="pareto-strategy-grid">
+        @foreach (var res in run.Results)
+        {
+            <div class="control-panel @(res.IsRecommended ? "strategy-card-recommended" : "")">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                    <strong class="mono-num text-cyan" style="font-size:15px;">@res.StrategyCode</strong>
+                    <span class="badge-chip @(res.IsRecommended ? "optimal" : res.RiskLevel.ToLowerInvariant())">
+                        @(res.IsRecommended ? "OR-TOOLS OPTIMAL" : "RISK: " + res.RiskLevel)
+                    </span>
+                </div>
+                <div style="font-weight:600;margin-bottom:10px;">@res.StrategyName</div>
+                <div class="inset-panel mono-num" style="font-size:12px;">
+                    <div>Cost: <strong>$@((res.TotalStrategyCostUsd / 1_000_000m).ToString("F2"))M</strong> (+$@((res.AdditionalCostUsd / 1_000m).ToString("F0"))K)</div>
+                    <div>Risk: <strong>@res.RiskLevel</strong> (-@res.RiskReductionPct.ToString("F0")%)</div>
+                    <div>Service Level: <strong class="text-emerald">@res.ResultingServiceLevelPct.ToString("F1")%</strong></div>
+                    <div>Revenue Protected: <strong class="text-amber">$@((res.RevenueProtectedUsd / 1_000_000m).ToString("F2"))M</strong></div>
+                    <div>Reallocation: <strong>@res.ReallocationPct.ToString("F0")% (@res.AllocatedUnitsPerDay.ToString("N0") u/day)</strong></div>
+                </div>
+            </div>
+        }
+    </div>
+</section>
+
+<div class="grid-2">
+    <section class="metal-panel">
+        <div class="panel-header-bar">
+            <h2 class="panel-title">OR-TOOLS CONSTRAINTS, SLACK &amp; DUAL SHADOW PRICES</h2>
+        </div>
+        <table class="industrial-table">
+            <thead>
+                <tr>
+                    <th>Constraint</th>
+                    <th>Category</th>
+                    <th>Upper Bound</th>
+                    <th>Activity</th>
+                    <th>Slack</th>
+                    <th>Shadow Price</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var c in run.Constraints)
+                {
+                    <tr>
+                        <td>@c.ConstraintName</td>
+                        <td>@c.Category</td>
+                        <td class="mono-num">@c.UpperBound.ToString("N0") @c.Unit</td>
+                        <td class="mono-num text-cyan">@c.EvaluatedActivity.ToString("N0") @c.Unit</td>
+                        <td class="mono-num">@c.SlackValue.ToString("N0")</td>
+                        <td class="mono-num text-amber">$@c.ShadowPrice.ToString("F2")</td>
+                        <td><span class="badge-chip @(c.IsBinding ? "high" : "optimal")">@(c.IsBinding ? "BINDING" : "FEASIBLE")</span></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </section>
+
+    <section class="metal-panel">
+        <div class="panel-header-bar">
+            <h2 class="panel-title">OPTIMAL MITIGATION PLANNER (CAPEX PORTFOLIO SOLVER)</h2>
+            <span class="badge-chip optimal">BEST ROI: @portfolio.BestSingleInvestmentCode (@portfolio.PortfolioRoiMultiple.ToString("F2")x)</span>
+        </div>
+        <div class="inset-panel" style="margin-bottom:10px;">
+            <span class="mono-num">Selected Investment: <strong>$@portfolio.TotalInvestmentCostUsd.ToString("N0")</strong> / $@portfolio.BudgetLimitUsd.ToString("N0")</span> |
+            <span class="mono-num text-emerald">Protected: <strong>$@((portfolio.TotalRevenueProtectedUsd / 1_000_000m).ToString("F2"))M</strong></span> |
+            <span class="mono-num text-amber">Resilience: <strong>@portfolio.BaselineResilienceScore -> @portfolio.ProjectedResilienceScore</strong></span>
+        </div>
+        <table class="industrial-table">
+            <thead>
+                <tr>
+                    <th>Lever</th>
+                    <th>Investment</th>
+                    <th>Cost</th>
+                    <th>Risk Red.</th>
+                    <th>Rev. Protected</th>
+                    <th>ROI</th>
+                    <th>OR-Tools Pick</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var m in portfolio.EvaluatedMitigations)
+                {
+                    <tr>
+                        <td>@m.InvestmentType</td>
+                        <td>@m.Name</td>
+                        <td class="mono-num">$@((m.InvestmentCostUsd / 1_000m).ToString("F0"))K</td>
+                        <td class="mono-num text-cyan">-@m.RiskReductionPct.ToString("F1")%</td>
+                        <td class="mono-num text-emerald">$@((m.AnnualRevenueProtectedUsd / 1_000_000m).ToString("F2"))M</td>
+                        <td class="mono-num text-amber">@m.RoiMultiple.ToString("F2")x</td>
+                        <td><span class="badge-chip @(m.IsOptimalSelection ? "optimal" : "low")">@(m.IsOptimalSelection ? "SELECTED" : "DEFERRED")</span></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </section>
+</div>

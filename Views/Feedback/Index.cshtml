@@ -1,0 +1,106 @@
+@model NEXUS.Modules.Feedback.Presentation.FeedbackViewModel
+@{
+    var latest = Model.FeedbackRecords.FirstOrDefault();
+}
+
+<section class="command-panel" style="margin-bottom:18px;">
+    <div class="panel-header-bar">
+        <h1 class="panel-title"><span class="status-led"></span> DECISION QUALITY FEEDBACK &amp; MODEL CALIBRATION</h1>
+        <span class="badge-chip optimal">PREDICTED VS. ACTUAL OUTCOME TELEMETRY</span>
+    </div>
+
+    @if (latest is not null)
+    {
+        <div class="grid-4" style="margin-bottom:16px;">
+            <div class="metric-display">
+                <span class="metric-display-label">PREDICTED REVENUE LOSS</span>
+                <span class="metric-display-value text-amber">$@((latest.Outcome.PredictedRevenueLossUsd / 1_000m).ToString("F0"))K</span>
+                <span class="text-muted mono-num">Decision @latest.Outcome.DecisionCode</span>
+            </div>
+            <div class="metric-display">
+                <span class="metric-display-label">ACTUAL REVENUE LOSS</span>
+                <span class="metric-display-value text-emerald">$@((latest.Outcome.ActualRevenueLossUsd / 1_000m).ToString("F0"))K</span>
+                <span class="text-muted mono-num">Prediction Error: @latest.Quality.PredictionErrorPct.ToString("F2")%</span>
+            </div>
+            <div class="metric-display">
+                <span class="metric-display-label">DECISION EFFECTIVENESS</span>
+                <span class="metric-display-value text-cyan">@latest.Quality.DecisionEffectivenessScore.ToString("F1")%</span>
+                <span class="text-muted mono-num">Calibration Multiplier: @latest.Quality.CalibrationWeightMultiplier.ToString("F3")</span>
+            </div>
+            <div class="metric-display">
+                <span class="metric-display-label">COST &amp; SLA VARIANCE</span>
+                <span class="metric-display-value text-emerald">@latest.Quality.CostVariancePct.ToString("F2")%</span>
+                <span class="text-muted mono-num">SLA Variance: +@latest.Quality.ServiceLevelVariancePct.ToString("F2")%</span>
+            </div>
+        </div>
+    }
+
+    <form method="post" action="/Feedback/RecordOutcome" class="inset-panel">
+        @Html.AntiForgeryToken()
+        <div class="grid-6">
+            <div class="control-group">
+                <label>Decision</label>
+                <select name="decisionId">
+                    @foreach (var d in Model.Decisions)
+                    {
+                        <option value="@d.Id">@d.DecisionCode</option>
+                    }
+                </select>
+            </div>
+            <div class="control-group">
+                <label>Predicted Loss ($)</label>
+                <input type="number" name="predictedRevenueLossUsd" value="420000" />
+            </div>
+            <div class="control-group">
+                <label>Actual Loss ($)</label>
+                <input type="number" name="actualRevenueLossUsd" value="390000" />
+            </div>
+            <div class="control-group">
+                <label>Predicted Cost ($)</label>
+                <input type="number" name="predictedAdditionalCostUsd" value="420000" />
+            </div>
+            <div class="control-group">
+                <label>Actual Cost ($)</label>
+                <input type="number" name="actualAdditionalCostUsd" value="408500" />
+            </div>
+            <div class="control-group" style="justify-content:flex-end;">
+                <button type="submit" class="physical-button physical-button-primary">RECORD ACTUAL OUTCOME</button>
+            </div>
+        </div>
+    </form>
+</section>
+
+<section class="metal-panel">
+    <div class="panel-header-bar">
+        <h2 class="panel-title">HISTORICAL DECISION QUALITY &amp; OUTCOME LEDGER</h2>
+    </div>
+    <table class="industrial-table">
+        <thead>
+            <tr>
+                <th>Decision</th>
+                <th>Predicted Revenue Loss</th>
+                <th>Actual Revenue Loss</th>
+                <th>Prediction Error</th>
+                <th>Decision Effectiveness</th>
+                <th>Cost Variance</th>
+                <th>SLA Variance</th>
+                <th>Calibration Weight</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var f in Model.FeedbackRecords)
+            {
+                <tr>
+                    <td class="mono-num">@f.Outcome.DecisionCode</td>
+                    <td class="mono-num text-amber">$@f.Outcome.PredictedRevenueLossUsd.ToString("N0")</td>
+                    <td class="mono-num text-emerald">$@f.Outcome.ActualRevenueLossUsd.ToString("N0")</td>
+                    <td class="mono-num">@f.Quality.PredictionErrorPct.ToString("F2")%</td>
+                    <td class="mono-num text-cyan">@f.Quality.DecisionEffectivenessScore.ToString("F1")%</td>
+                    <td class="mono-num">$@f.Quality.CostVarianceUsd.ToString("N0") (@f.Quality.CostVariancePct.ToString("F2")%)</td>
+                    <td class="mono-num text-emerald">+@f.Quality.ServiceLevelVariancePct.ToString("F2")%</td>
+                    <td class="mono-num">@f.Quality.CalibrationWeightMultiplier.ToString("F3")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</section>

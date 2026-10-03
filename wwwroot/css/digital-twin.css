@@ -1,0 +1,33 @@
+.twin-workspace {
+  display: grid;
+  grid-template-columns: 1fr 370px;
+  gap: 18px;
+  align-items: start;
+}
+
+.twin-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.twin-inspector-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.twin-kv-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 7px 10px;
+  background: #090d12;
+  border: 1px solid #232e3c;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+}

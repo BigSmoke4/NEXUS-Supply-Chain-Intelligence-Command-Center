@@ -1,0 +1,394 @@
+/* NEXUS Premium Skeuomorphic Enterprise Control Room Design System */
+
+.metal-panel {
+  position: relative;
+  background:
+    linear-gradient(165deg, rgba(255, 255, 255, 0.045) 0%, rgba(255, 255, 255, 0.0) 42%, rgba(0, 0, 0, 0.28) 100%),
+    linear-gradient(180deg, #232c38 0%, #19202a 100%);
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+  border-right: 1px solid rgba(0, 0, 0, 0.8);
+  border-bottom: 2px solid rgba(0, 0, 0, 0.92);
+  border-radius: 8px;
+  padding: 18px 20px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 8px 22px rgba(0, 0, 0, 0.65);
+}
+
+.inset-panel {
+  background: linear-gradient(180deg, #0b0e13 0%, #12171f 100%);
+  border-top: 2px solid rgba(0, 0, 0, 0.92);
+  border-left: 2px solid rgba(0, 0, 0, 0.85);
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.11);
+  border-radius: 6px;
+  padding: 14px 16px;
+  box-shadow:
+    inset 0 3px 9px rgba(0, 0, 0, 0.85),
+    0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.control-panel {
+  position: relative;
+  background: linear-gradient(180deg, #26303d 0%, #1b222c 100%);
+  border: 1px solid #39475a;
+  border-bottom: 3px solid #0d1117;
+  border-radius: 7px;
+  padding: 16px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.13),
+    0 6px 16px rgba(0, 0, 0, 0.55);
+}
+
+.command-panel {
+  position: relative;
+  background:
+    radial-gradient(ellipse at top right, rgba(6, 182, 212, 0.09), transparent 60%),
+    linear-gradient(180deg, #202936 0%, #151b24 100%);
+  border: 1px solid #3b4b61;
+  border-top: 2px solid #526785;
+  border-bottom: 3px solid #090c10;
+  border-radius: 8px;
+  padding: 18px 22px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    0 10px 26px rgba(0, 0, 0, 0.72);
+}
+
+.warning-panel {
+  background: linear-gradient(180deg, #2d2518 0%, #1f1911 100%);
+  border: 1px solid rgba(245, 158, 11, 0.55);
+  border-left: 4px solid var(--accent-amber);
+  border-radius: 6px;
+  padding: 14px 16px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 5px 14px rgba(0, 0, 0, 0.6);
+}
+
+.critical-panel {
+  background: linear-gradient(180deg, #311a1d 0%, #201114 100%);
+  border: 1px solid rgba(239, 68, 68, 0.6);
+  border-left: 4px solid var(--accent-crimson);
+  border-radius: 6px;
+  padding: 14px 16px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 5px 16px rgba(0, 0, 0, 0.68);
+}
+
+/* Tactile Physical Buttons */
+.physical-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.9px;
+  color: #e6edf5;
+  background: linear-gradient(180deg, #354356 0%, #242e3b 52%, #1c242f 100%);
+  border-top: 1px solid rgba(255, 255, 255, 0.25);
+  border-left: 1px solid rgba(255, 255, 255, 0.14);
+  border-right: 1px solid #0e1319;
+  border-bottom: 3px solid #090c10;
+  border-radius: 5px;
+  padding: 9px 15px;
+  cursor: pointer;
+  user-select: none;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    0 3px 6px rgba(0, 0, 0, 0.65);
+  transition: transform 0.08s ease, box-shadow 0.08s ease, filter 0.12s ease;
+  text-decoration: none;
+}
+
+.physical-button:hover:not(:disabled) {
+  filter: brightness(1.12);
+  color: #ffffff;
+  text-decoration: none;
+}
+
+.physical-button:active:not(:disabled) {
+  transform: translateY(2px);
+  border-bottom-width: 1px;
+  box-shadow:
+    inset 0 2px 5px rgba(0, 0, 0, 0.75),
+    0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.physical-button:focus-visible {
+  outline: 2px solid var(--accent-cyan);
+  outline-offset: 2px;
+}
+
+.physical-button:disabled {
+  opacity: 0.48;
+  cursor: not-allowed;
+  filter: grayscale(0.5);
+}
+
+.physical-button-primary {
+  background: linear-gradient(180deg, #d97706 0%, #b45309 55%, #92400e 100%);
+  color: #fffbeb;
+  border-top: 1px solid rgba(255, 255, 255, 0.35);
+}
+
+.physical-button-danger {
+  background: linear-gradient(180deg, #dc2626 0%, #b91c1c 55%, #7f1d1d 100%);
+  color: #fef2f2;
+  border-top: 1px solid rgba(255, 255, 255, 0.32);
+}
+
+.physical-button-success {
+  background: linear-gradient(180deg, #059669 0%, #047857 55%, #065f46 100%);
+  color: #ecfdf5;
+  border-top: 1px solid rgba(255, 255, 255, 0.32);
+}
+
+/* Toggle Switch */
+.toggle-switch {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.toggle-switch input {
+  appearance: none;
+  width: 42px;
+  height: 22px;
+  background: #0b0e13;
+  border: 1px solid #384659;
+  border-radius: 12px;
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.9);
+  position: relative;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.toggle-switch input::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #64748b, #334155);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);
+  transition: transform 0.15s ease;
+}
+
+.toggle-switch input:checked {
+  border-color: var(--accent-emerald);
+}
+
+.toggle-switch input:checked::after {
+  transform: translateX(20px);
+  background: linear-gradient(180deg, #34d399, #059669);
+}
+
+/* Status LEDs */
+.status-led {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #6ee7b7, #10b981 60%, #064e3b 100%);
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.8), inset 0 1px 1px rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(0, 0, 0, 0.7);
+}
+
+.status-led.amber {
+  background: radial-gradient(circle at 35% 35%, #fde68a, #f59e0b 60%, #78350f 100%);
+  box-shadow: 0 0 8px rgba(245, 158, 11, 0.85);
+}
+
+.status-led.red {
+  background: radial-gradient(circle at 35% 35%, #fca5a5, #ef4444 60%, #7f1d1d 100%);
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.9);
+}
+
+.status-led.cyan {
+  background: radial-gradient(circle at 35% 35%, #a5f3fc, #06b6d4 60%, #164e63 100%);
+  box-shadow: 0 0 8px rgba(6, 182, 212, 0.85);
+}
+
+/* Digital & Metric Readouts */
+.digital-display {
+  font-family: var(--font-mono);
+  background: linear-gradient(180deg, #070a0e 0%, #0d131a 100%);
+  border-top: 2px solid #040608;
+  border-left: 2px solid #040608;
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 5px;
+  padding: 10px 14px;
+  color: #38bdf8;
+  text-shadow: 0 0 10px rgba(56, 189, 248, 0.35);
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.92);
+}
+
+.metric-display {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: linear-gradient(180deg, #090d12 0%, #10161f 100%);
+  border: 1px solid #2b3746;
+  border-top: 2px solid #05070a;
+  border-radius: 6px;
+  padding: 12px 14px;
+  box-shadow: inset 0 2px 7px rgba(0, 0, 0, 0.85);
+}
+
+.metric-display-label {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: var(--text-secondary);
+}
+
+.metric-display-value {
+  font-family: var(--font-mono);
+  font-size: 23px;
+  font-weight: 800;
+  color: #f8fafc;
+  letter-spacing: 0.5px;
+}
+
+/* Gauge & Progress Meter */
+.gauge {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 12px;
+  background: #0c1016;
+  border: 1px solid #2a3544;
+  border-radius: 6px;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.85);
+}
+
+.progress-meter {
+  width: 100%;
+  height: 10px;
+  background: #06080b;
+  border: 1px solid #2c3847;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.9);
+}
+
+.progress-meter-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #06b6d4 0%, #10b981 70%, #f59e0b 100%);
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.55);
+  transition: width 0.25s ease;
+}
+
+/* Control Groups & Industrial Table */
+.control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.control-group label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.9px;
+  color: var(--text-secondary);
+}
+
+.control-group input,
+.control-group select,
+.control-group textarea {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text-primary);
+  background: #0a0e13;
+  border-top: 2px solid #040608;
+  border-left: 2px solid #040608;
+  border-right: 1px solid #324052;
+  border-bottom: 1px solid #324052;
+  border-radius: 4px;
+  padding: 8px 11px;
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.85);
+}
+
+.control-group input:focus,
+.control-group select:focus,
+.control-group textarea:focus {
+  outline: 2px solid var(--accent-cyan);
+  outline-offset: 1px;
+}
+
+.industrial-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+  background: #0e131a;
+  border: 1px solid #2e3b4b;
+}
+
+.industrial-table th {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-secondary);
+  background: linear-gradient(180deg, #222b37 0%, #181f28 100%);
+  padding: 10px 12px;
+  text-align: left;
+  border-bottom: 2px solid #090c10;
+}
+
+.industrial-table td {
+  padding: 9px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  color: var(--text-primary);
+}
+
+.industrial-table tbody tr:hover {
+  background: rgba(56, 189, 248, 0.06);
+}
+
+/* Physical Screws & Rivets */
+.screw {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #64748b, #1e293b 75%);
+  border: 1px solid #090d12;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.35), 0 1px 1px rgba(255, 255, 255, 0.08);
+  position: relative;
+}
+
+.screw::after {
+  content: '';
+  position: absolute;
+  top: 4px;
+  left: 1px;
+  right: 1px;
+  height: 1px;
+  background: #0f172a;
+  transform: rotate(-35deg);
+}
+
+.rivet {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #94a3b8, #334155 75%);
+  border: 1px solid #090c10;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+}

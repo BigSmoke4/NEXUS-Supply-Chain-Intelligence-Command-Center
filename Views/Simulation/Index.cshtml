@@ -1,0 +1,155 @@
+@model NEXUS.Modules.Simulation.Presentation.SimulationViewModel
+@using System.Text.Json
+@using NEXUS.Modules.Simulation.Application
+@{
+    var run = Model.ActiveRun;
+    List<HistogramBucketDto> buckets = new();
+    try
+    {
+        buckets = JsonSerializer.Deserialize<List<HistogramBucketDto>>(run.HistogramBucketsJson, new JsonSerializerOptions(JsonSerializerDefaults.Web)) ?? new();
+    }
+    catch
+    {
+        buckets = new();
+    }
+}
+
+<section class="command-panel" style="margin-bottom:18px;">
+    <div class="panel-header-bar">
+        <h1 class="panel-title"><span class="status-led cyan"></span> SIMULATION &amp; MONTE CARLO ENGINE (@run.MonteCarloIterations.ToString("N0") SIMULATED FUTURES)</h1>
+        <form id="form-run-simulation" method="post" action="/Simulation/Run" style="display:flex;gap:8px;align-items:center;">
+            @Html.AntiForgeryToken()
+            <select name="scenarioId" style="background:#0a0e13;color:#e6edf5;border:1px solid #324052;padding:7px 10px;border-radius:4px;font-family:monospace;">
+                @foreach (var s in Model.Scenarios)
+                {
+                    <option value="@s.Id" selected="@(s.Id == run.ScenarioId)">@s.ScenarioCode — @s.Name</option>
+                }
+            </select>
+            <input type="number" name="monteCarloIterations" value="10000" min="500" max="50000" step="500" style="background:#0a0e13;color:#e6edf5;border:1px solid #324052;padding:7px 10px;border-radius:4px;font-family:monospace;width:110px;" />
+            <button type="submit" id="btn-submit-simulation" class="physical-button physical-button-primary">RUN SIMULATION</button>
+        </form>
+    </div>
+
+    <div class="mc-probability-strip">
+        <div class="metric-display">
+            <span class="metric-display-label">Probability of Stockout</span>
+            <span class="metric-display-value text-amber">@run.ProbabilityOfStockoutPct.ToString("F1")%</span>
+            <span class="text-muted mono-num">First Stockout Window: Day @run.FirstStockoutDay</span>
+        </div>
+        <div class="metric-display">
+            <span class="metric-display-label">Probability of Revenue Loss &gt; $1M</span>
+            <span class="metric-display-value text-crimson">@run.ProbabilityRevenueLossOver1MPct.ToString("F1")%</span>
+            <span class="text-muted mono-num">Mean Loss: $@((run.MonteCarloMeanRevenueLossUsd / 1_000_000m).ToString("F2"))M | P95: $@((run.MonteCarloP95RevenueLossUsd / 1_000_000m).ToString("F2"))M</span>
+        </div>
+        <div class="metric-display">
+            <span class="metric-display-label">Probability SLA &lt; 95%</span>
+            <span class="metric-display-value text-cyan">@run.ProbabilitySlaBelow95Pct.ToString("F1")%</span>
+            <span class="text-muted mono-num">Expected Service Level: @run.ExpectedServiceLevelPct.ToString("F1")% | Recovery: @run.ExpectedRecoveryDays.ToString("F1")d</span>
+        </div>
+    </div>
+
+    <div class="grid-4">
+        <div class="inset-panel">
+            <div class="metric-display-label">MEAN REVENUE LOSS</div>
+            <div class="mono-num text-amber" style="font-size:18px;font-weight:700;">$@run.MonteCarloMeanRevenueLossUsd.ToString("N0")</div>
+        </div>
+        <div class="inset-panel">
+            <div class="metric-display-label">P95 TAIL REVENUE LOSS</div>
+            <div class="mono-num text-crimson" style="font-size:18px;font-weight:700;">$@run.MonteCarloP95RevenueLossUsd.ToString("N0")</div>
+        </div>
+        <div class="inset-panel">
+            <div class="metric-display-label">EXPECTED RECOVERY TIME</div>
+            <div class="mono-num text-cyan" style="font-size:18px;font-weight:700;">@run.ExpectedRecoveryDays.ToString("F1") Days</div>
+        </div>
+        <div class="inset-panel">
+            <div class="metric-display-label">OPERATIONAL COST IMPACT</div>
+            <div class="mono-num" style="font-size:18px;font-weight:700;">$@run.ExpectedOperationalCostUsd.ToString("N0")</div>
+        </div>
+    </div>
+</section>
+
+<div class="grid-2" style="margin-bottom:18px;">
+    <section class="metal-panel">
+        <div class="panel-header-bar">
+            <h2 class="panel-title">MONTE CARLO REVENUE LOSS DISTRIBUTION (@run.MonteCarloIterations.ToString("N0") FUTURES)</h2>
+        </div>
+        <div class="inset-panel">
+            <div class="histogram-bars">
+                @foreach (var b in buckets)
+                {
+                    var heightPct = Math.Clamp(b.ProbabilityPct * 3.1m, 8m, 100m);
+                    <div class="histogram-col">
+                        <span class="mono-num text-cyan" style="font-size:10px;">@b.ProbabilityPct.ToString("F1")%</span>
+                        <div class="histogram-bar-fill" style="height:@heightPct.ToString("F0")%;"></div>
+                        <span class="mono-num text-muted" style="font-size:10px;">@b.Bucket</span>
+                    </div>
+                }
+            </div>
+        </div>
+    </section>
+
+    <section class="metal-panel">
+        <div class="panel-header-bar">
+            <h2 class="panel-title">CAUSAL ENTERPRISE CASCADE PROPAGATION</h2>
+            <form method="post" action="/Optimization/Run" style="display:inline;">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="scenarioId" value="@run.ScenarioId" />
+                <button type="submit" class="physical-button physical-button-primary">PROCEED TO OR-TOOLS OPTIMIZATION</button>
+            </form>
+        </div>
+
+        <div class="cascade-step-card">
+            <span><strong>1. Supplier Capacity Shock:</strong> @run.TargetAssetCode capacity reduced</span>
+            <span class="badge-chip high">UPSTREAM</span>
+        </div>
+        <div class="cascade-step-card">
+            <span><strong>2. Factory Material Deficit:</strong> Factory A receives less material; assembly utilization strained</span>
+            <span class="badge-chip medium">PRODUCTION</span>
+        </div>
+        <div class="cascade-step-card">
+            <span><strong>3. Warehouse Buffer Drawdown:</strong> Regional hub inventory depletes toward safety floor (Day @run.FirstStockoutDay)</span>
+            <span class="badge-chip medium">INVENTORY</span>
+        </div>
+        <div class="cascade-step-card">
+            <span><strong>4. Customer Order Delays &amp; Revenue Exposure:</strong> Expected SLA @run.ExpectedServiceLevelPct.ToString("F1")%, Mean Loss $@((run.MonteCarloMeanRevenueLossUsd / 1_000_000m).ToString("F2"))M</span>
+            <span class="badge-chip critical">MARKET IMPACT</span>
+        </div>
+    </section>
+</div>
+
+<section class="metal-panel">
+    <div class="panel-header-bar">
+        <h2 class="panel-title">DAY-BY-DAY DETERMINISTIC SIMULATION TRAJECTORY (@run.HorizonDays-DAY HORIZON)</h2>
+    </div>
+    <table class="industrial-table">
+        <thead>
+            <tr>
+                <th>Day</th>
+                <th>Asset Code</th>
+                <th>Asset Name</th>
+                <th>Effective Capacity</th>
+                <th>Remaining Inventory</th>
+                <th>Unfulfilled Demand</th>
+                <th>Daily Revenue Loss</th>
+                <th>Service Level</th>
+                <th>Cascade State</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var r in run.Results)
+            {
+                <tr>
+                    <td class="mono-num">Day @r.DayNumber</td>
+                    <td class="mono-num">@r.AffectedAssetCode</td>
+                    <td>@r.AffectedAssetName</td>
+                    <td class="mono-num text-amber">@r.EffectiveCapacityPct.ToString("F1")%</td>
+                    <td class="mono-num">@r.InventoryRemainingUnits.ToString("N0") units</td>
+                    <td class="mono-num text-crimson">@r.UnfulfilledDemandUnits.ToString("N0") units</td>
+                    <td class="mono-num text-amber">$@r.DailyRevenueLossUsd.ToString("N0")</td>
+                    <td class="mono-num text-emerald">@r.ServiceLevelPct.ToString("F1")%</td>
+                    <td>@r.CascadeDescription</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</section>

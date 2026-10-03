@@ -1,0 +1,33 @@
+@media (max-width: 1280px) {
+  .command-center-kpi-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .twin-workspace,
+  .scenario-lab-grid {
+    grid-template-columns: 1fr;
+  }
+  .pareto-strategy-grid,
+  .explainability-triad {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 920px) {
+  .nexus-shell {
+    grid-template-columns: 1fr;
+  }
+  .nexus-sidebar {
+    position: relative;
+    height: auto;
+  }
+  .grid-2,
+  .grid-3,
+  .grid-4,
+  .grid-6,
+  .mc-probability-strip,
+  .resilience-radar-grid,
+  .black-swan-sliders,
+  .ml-metrics-strip {
+    grid-template-columns: 1fr;
+  }
+}

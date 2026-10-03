@@ -1,0 +1,44 @@
+.mc-probability-strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.histogram-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  height: 190px;
+  padding: 16px 12px 6px;
+}
+
+.histogram-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  height: 100%;
+  justify-content: flex-end;
+}
+
+.histogram-bar-fill {
+  width: 100%;
+  background: linear-gradient(180deg, #38bdf8 0%, #0284c7 60%, #0369a1 100%);
+  border-top: 1px solid #bae6fd;
+  border-radius: 3px 3px 0 0;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.35);
+}
+
+.cascade-step-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  margin-bottom: 8px;
+  background: #0d1219;
+  border-left: 3px solid var(--accent-amber);
+  border-radius: 4px;
+}

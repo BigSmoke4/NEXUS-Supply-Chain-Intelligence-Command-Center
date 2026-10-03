@@ -2,36 +2,94 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
+      - "arena/**"
   pull_request:
-    branches: [main]
+    branches:
+      - main
+  workflow_dispatch:
 
 jobs:
-  build-and-test:
+  build-test-docker:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
 
-      - name: Setup .NET
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: nexus_ci_db
+          POSTGRES_USER: nexus
+          POSTGRES_PASSWORD: nexus_ci_password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U nexus -d nexus_ci_db"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 9
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: "9.0.x"
 
       - name: Restore
-        run: dotnet restore Nexus.sln
+        run: |
+          if ! dotnet restore NEXUS.sln > /tmp/restore.log 2>&1; then
+            cat /tmp/restore.log
+            tail -n 25 /tmp/restore.log | while IFS= read -r line; do echo "::error::$line"; done
+            exit 1
+          fi
+          cat /tmp/restore.log
 
       - name: Build
-        run: dotnet build Nexus.sln --no-restore --configuration Release
+        run: |
+          if ! dotnet build NEXUS.sln --no-restore --configuration Release > /tmp/build.log 2>&1; then
+            cat /tmp/build.log
+            grep -E "error " /tmp/build.log | head -n 25 | while IFS= read -r line; do echo "::error::$line"; done
+            exit 1
+          fi
+          cat /tmp/build.log
 
-      - name: Verify Docker
-        run: docker info
+      - name: Unit Tests
+        run: |
+          if ! dotnet test Tests/UnitTests/NEXUS.UnitTests.csproj --no-build --configuration Release --verbosity normal > /tmp/unit.log 2>&1; then
+            cat /tmp/unit.log
+            tail -n 30 /tmp/unit.log | while IFS= read -r line; do echo "::error::$line"; done
+            exit 1
+          fi
+          cat /tmp/unit.log
 
-      - name: Test
-        run: dotnet test Nexus.sln --no-build --configuration Release --logger "trx;LogFileName=test-results.trx"
+      - name: Integration Tests (PostgreSQL + Redis + REST APIs + Workflows)
+        env:
+          NEXUS_TEST_POSTGRES_CONNECTION: "Host=localhost;Port=5432;Database=nexus_ci_db;Username=nexus;Password=nexus_ci_password"
+          NEXUS_TEST_REDIS_CONNECTION: "localhost:6379"
+          ConnectionStrings__DefaultConnection: "Host=localhost;Port=5432;Database=nexus_ci_db;Username=nexus;Password=nexus_ci_password"
+          ConnectionStrings__Redis: "localhost:6379"
+        run: |
+          if ! dotnet test Tests/IntegrationTests/NEXUS.IntegrationTests.csproj --no-build --configuration Release --verbosity normal > /tmp/int.log 2>&1; then
+            cat /tmp/int.log
+            tail -n 35 /tmp/int.log | while IFS= read -r line; do echo "::error::$line"; done
+            exit 1
+          fi
+          cat /tmp/int.log
 
-      - name: Publish test results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-results
-          path: "**/test-results.trx"
+      - name: Docker Build (nexus-web & nexus-ml-api)
+        run: |
+          docker build -t nexus-web:ci -f Dockerfile .
+          docker build -t nexus-ml-api:ci -f ML/Dockerfile .
