@@ -49,19 +49,43 @@ jobs:
           dotnet-version: "9.0.x"
 
       - name: Restore
-        run: dotnet restore NEXUS.sln
+        run: |
+          if ! dotnet restore NEXUS.sln > /tmp/restore.log 2>&1; then
+            cat /tmp/restore.log
+            tail -n 25 /tmp/restore.log | while IFS= read -r line; do echo "::error::$line"; done
+            exit 1
+          fi
+          cat /tmp/restore.log
 
       - name: Build
-        run: dotnet build NEXUS.sln --no-restore --configuration Release
+        run: |
+          if ! dotnet build NEXUS.sln --no-restore --configuration Release > /tmp/build.log 2>&1; then
+            cat /tmp/build.log
+            grep -E "error " /tmp/build.log | head -n 25 | while IFS= read -r line; do echo "::error::$line"; done
+            exit 1
+          fi
+          cat /tmp/build.log
 
       - name: Unit Tests
-        run: dotnet test Tests/UnitTests/NEXUS.UnitTests.csproj --no-build --configuration Release --verbosity normal
+        run: |
+          if ! dotnet test Tests/UnitTests/NEXUS.UnitTests.csproj --no-build --configuration Release --verbosity normal > /tmp/unit.log 2>&1; then
+            cat /tmp/unit.log
+            tail -n 30 /tmp/unit.log | while IFS= read -r line; do echo "::error::$line"; done
+            exit 1
+          fi
+          cat /tmp/unit.log
 
       - name: Integration Tests (PostgreSQL + Redis + REST APIs + Workflows)
         env:
           NEXUS_TEST_POSTGRES_CONNECTION: "Host=localhost;Port=5432;Database=nexus_ci_db;Username=nexus;Password=nexus_ci_password"
           NEXUS_TEST_REDIS_CONNECTION: "localhost:6379"
-        run: dotnet test Tests/IntegrationTests/NEXUS.IntegrationTests.csproj --no-build --configuration Release --verbosity normal
+        run: |
+          if ! dotnet test Tests/IntegrationTests/NEXUS.IntegrationTests.csproj --no-build --configuration Release --verbosity normal > /tmp/int.log 2>&1; then
+            cat /tmp/int.log
+            tail -n 35 /tmp/int.log | while IFS= read -r line; do echo "::error::$line"; done
+            exit 1
+          fi
+          cat /tmp/int.log
 
       - name: Docker Build (nexus-web & nexus-ml-api)
         run: |
