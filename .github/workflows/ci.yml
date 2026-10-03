@@ -79,6 +79,8 @@ jobs:
         env:
           NEXUS_TEST_POSTGRES_CONNECTION: "Host=localhost;Port=5432;Database=nexus_ci_db;Username=nexus;Password=nexus_ci_password"
           NEXUS_TEST_REDIS_CONNECTION: "localhost:6379"
+          ConnectionStrings__DefaultConnection: "Host=localhost;Port=5432;Database=nexus_ci_db;Username=nexus;Password=nexus_ci_password"
+          ConnectionStrings__Redis: "localhost:6379"
         run: |
           if ! dotnet test Tests/IntegrationTests/NEXUS.IntegrationTests.csproj --no-build --configuration Release --verbosity normal > /tmp/int.log 2>&1; then
             cat /tmp/int.log

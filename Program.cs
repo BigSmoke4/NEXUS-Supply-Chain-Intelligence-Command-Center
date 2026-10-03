@@ -49,15 +49,17 @@ builder.Host.UseSerilog((ctx, lc) => lc
     .Enrich.FromLogContext()
     .WriteTo.Console());
 
-var pgConnectionString = builder.Configuration.GetConnectionString("DefaultConnection")
-                         ?? Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection");
-var useInMemory = builder.Configuration.GetValue<bool>("Database:UseInMemory");
-
-builder.Services.AddDbContext<NexusDbContext>(options =>
+builder.Services.AddDbContext<NexusDbContext>((sp, options) =>
 {
-    if (!useInMemory && !string.IsNullOrWhiteSpace(pgConnectionString))
+    var config = sp.GetRequiredService<IConfiguration>();
+    var pgConn = Environment.GetEnvironmentVariable("NEXUS_TEST_POSTGRES_CONNECTION")
+                 ?? Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection")
+                 ?? config.GetConnectionString("DefaultConnection");
+    var inMemory = config.GetValue<bool>("Database:UseInMemory");
+
+    if (!inMemory && !string.IsNullOrWhiteSpace(pgConn))
     {
-        options.UseNpgsql(pgConnectionString);
+        options.UseNpgsql(pgConn);
     }
     else
     {
@@ -65,9 +67,10 @@ builder.Services.AddDbContext<NexusDbContext>(options =>
     }
 });
 
-var redisConnection = builder.Configuration.GetConnectionString("Redis")
-                      ?? builder.Configuration["Redis:ConnectionString"]
-                      ?? Environment.GetEnvironmentVariable("ConnectionStrings__Redis");
+var redisConnection = Environment.GetEnvironmentVariable("NEXUS_TEST_REDIS_CONNECTION")
+                      ?? Environment.GetEnvironmentVariable("ConnectionStrings__Redis")
+                      ?? builder.Configuration.GetConnectionString("Redis")
+                      ?? builder.Configuration["Redis:ConnectionString"];
 
 if (!string.IsNullOrWhiteSpace(redisConnection))
 {

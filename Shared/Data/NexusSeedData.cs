@@ -34,22 +34,7 @@ public static class NexusSeedData
         var db = scope.ServiceProvider.GetRequiredService<NexusDbContext>();
         var logger = scope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("NexusSeedData");
 
-        if (db.Database.IsRelational())
-        {
-            var pendingMigrations = await db.Database.GetPendingMigrationsAsync(cancellationToken);
-            if (pendingMigrations.Any())
-            {
-                await db.Database.MigrateAsync(cancellationToken);
-            }
-            else
-            {
-                await db.Database.EnsureCreatedAsync(cancellationToken);
-            }
-        }
-        else
-        {
-            await db.Database.EnsureCreatedAsync(cancellationToken);
-        }
+        await db.Database.EnsureCreatedAsync(cancellationToken);
 
         await SeedIdentityAsync(scope.ServiceProvider);
 
